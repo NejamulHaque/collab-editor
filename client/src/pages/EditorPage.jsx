@@ -225,8 +225,8 @@ export default function EditorPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg)', fontFamily: 'var(--font)' }}>
 
-      {/* Toolbar — hidden in zen mode, also hidden in doc mode (RichTextEditor brings its own) */}
-      {!zenMode && editorMode === 'code' && (
+      {/* Toolbar — hidden in zen mode */}
+      {!zenMode && (
         <div style={{ height: 52, borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', padding: '0 10px', gap: 6, flexShrink: 0, background: 'var(--bg)' }}>
 
           {/* Left */}
@@ -294,12 +294,12 @@ export default function EditorPage() {
       )}
 
       {/* Stats bar */}
-      {!zenMode && showStats && editorMode === 'code' && (
+      {!zenMode && showStats && (
         <div style={{ height: 30, borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', padding: '0 18px', gap: 18, background: 'var(--bg2)', flexShrink: 0 }}>
           <span style={stat}>{wordCount.toLocaleString()} words</span>
           <span style={stat}>{content.length.toLocaleString()} chars</span>
           <span style={stat}>{readingTime} min read</span>
-          <span style={stat}>Font {fontSize}px</span>
+          {editorMode === 'code' && <span style={stat}>Font {fontSize}px</span>}
           <span style={{ ...stat, marginLeft: 'auto' }}>{peers.length + 1} editing</span>
           {detectedLang && detectedLang !== 'auto' && selectedLang === 'auto' && (
             <span style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 700, background: 'var(--accent-light)', padding: '1px 8px', borderRadius: 10 }}>

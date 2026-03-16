@@ -25,7 +25,7 @@ function getPeerColor(name) {
   return colors[Math.abs(hash) % colors.length]
 }
 
-export default function RichTextEditor({ ydocRef, providerRef, user, docTitle, setDocTitle, saveTitle, peers, onBack, onSwitchMode }) {
+export default function RichTextEditor({ ydocRef, providerRef, user }) {
   const containerRef = useRef(null)
 
   const editor = useEditor({
@@ -67,11 +67,11 @@ export default function RichTextEditor({ ydocRef, providerRef, user, docTitle, s
   // Basic styling for the editor content area
   // (We use a dynamic style block to target ProseMirror classes)
   return (
-    <div className="rich-text-container" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="rich-text-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', flex: 1, width: '100%' }}>
       <style>{`
         .rich-text-container .ProseMirror {
           flex: 1;
-          padding: 2rem 3rem;
+          padding: 2.5rem 4rem;
           outline: none;
           max-width: 900px;
           margin: 0 auto;
@@ -148,15 +148,7 @@ export default function RichTextEditor({ ydocRef, providerRef, user, docTitle, s
         }
       `}</style>
 
-      <RichTextToolbar 
-        editor={editor} 
-        docTitle={docTitle}
-        setDocTitle={setDocTitle}
-        saveTitle={saveTitle}
-        peers={peers}
-        onBack={onBack}
-        onSwitchMode={onSwitchMode}
-      />
+      <RichTextToolbar editor={editor} />
       
       <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg2)' }} ref={containerRef}>
         <EditorContent editor={editor} />

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 
-export default function RichTextToolbar({ editor, docTitle, setDocTitle, saveTitle, peers, onBack, onSwitchMode }) {
+export default function RichTextToolbar({ editor }) {
   const fileInputRef = useRef(null)
 
   if (!editor) return null
@@ -139,33 +139,11 @@ export default function RichTextToolbar({ editor, docTitle, setDocTitle, saveTit
 
   return (
     <div style={toolbarContainerStyle}>
-      {/* Top Row: Home Bar */}
-      <div style={homeBarStyle}>
-        {/* Left: Back button + Title + Online Users */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button onClick={onBack} style={ghostBtn} title="Back to Dashboard" onMouseOver={e=>e.currentTarget.style.background='var(--bg2)'} onMouseOut={e=>e.currentTarget.style.background='none'}>
-            ← Back
-          </button>
-          
-          <div style={{ width: 1, height: 20, background: 'var(--border)', flexShrink: 0 }}/>
-          <div style={{ width: 24, height: 24, borderRadius: 6, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>C</div>
-
-          <input 
-            value={docTitle || ''} 
-            onChange={e => setDocTitle && setDocTitle(e.target.value)}
-            onBlur={e => saveTitle && saveTitle(e.target.value)}
-            onKeyDown={e => { if(e.key === 'Enter') { saveTitle && saveTitle(e.target.value); e.currentTarget.blur() } }}
-            style={titleInputStyle}
-          />
-
-          <div style={onlineBadgeStyle}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#10b981' }} />
-            <span style={{ fontWeight: 600 }}>{(peers?.length || 0) + 1} user{(peers?.length || 0) === 0 ? '' : 's'}</span>
-          </div>
-        </div>
-
-        {/* Top Menus (Word style) */}
-        <div style={{ display: 'flex', gap: 6, margin: '6px 0 0 34px', position: 'relative' }}>
+      {/* Secondary Toolbar: Menus & Export */}
+      <div style={actionsBarStyle}>
+        
+        {/* Left: Top Menus (Word style) */}
+        <div style={{ display: 'flex', gap: 6, position: 'relative' }}>
           {Object.entries(menuOptions).map(([menuName, items]) => (
             <div 
               key={menuName}
@@ -197,17 +175,9 @@ export default function RichTextToolbar({ editor, docTitle, setDocTitle, saveTit
             </div>
           ))}
         </div>
-      </div>
 
-      <div style={actionsBarStyle}>
-        {/* Right: Mode Switcher + Import/Export */}
+        {/* Right: Import/Export */}
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button onClick={onSwitchMode} style={outlineBtn} title="Switch to Code Mode" onMouseOver={e=>e.currentTarget.style.background='var(--bg2)'} onMouseOut={e=>e.currentTarget.style.background='var(--bg)'}>
-            &lt;/&gt; Code View
-          </button>
-          
-          <div style={dividerStyle} />
-
           <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImport} accept=".txt,.html,.md,.docx,.pdf,.xlsx,.xls,.csv" />
           <button onClick={() => fileInputRef.current?.click()} style={outlineBtn} onMouseOver={e=>e.currentTarget.style.background='var(--bg2)'} onMouseOut={e=>e.currentTarget.style.background='var(--bg)'}>📥 Import Docs</button>
           <button onClick={exportPDF} style={outlineBtn} onMouseOver={e=>e.currentTarget.style.background='var(--bg2)'} onMouseOut={e=>e.currentTarget.style.background='var(--bg)'}>📄 Export PDF</button>
@@ -327,15 +297,9 @@ const toolbarContainerStyle = {
   top: 0,
   zIndex: 10
 }
-const homeBarStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  padding: '10px 16px',
-  borderBottom: '1px solid var(--border)',
-}
 const actionsBarStyle = {
   display: 'flex',
-  justifyContent: 'flex-end',
+  alignItems: 'center',
   padding: '6px 16px',
   background: 'var(--bg)',
   borderBottom: '1px solid var(--border)',
@@ -348,9 +312,7 @@ const formattingRowStyle = {
   alignItems: 'center',
   background: 'var(--bg2)'
 }
-const titleInputStyle = { fontSize: 16, fontWeight: 700, border: 'none', background: 'transparent', outline: 'none', color: 'var(--text)', width: 180, overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 2 }
-const onlineBadgeStyle = { display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text2)', background: 'var(--bg2)', padding: '4px 10px', borderRadius: 20, border: '1px solid var(--border)' }
-const topMenuBtnStyle = { padding: '4px 8px', fontSize: 13, color: 'var(--text2)', background: 'transparent', border: 'none', borderRadius: 4, cursor: 'pointer' }
+const topMenuBtnStyle = { padding: '4px 10px', fontSize: 13, color: 'var(--text2)', background: 'transparent', border: 'none', borderRadius: 4, cursor: 'pointer', fontWeight: 600 }
 const dropdownStyle = { position: 'absolute', top: '100%', left: 0, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: '4px 0', minWidth: 160, zIndex: 100 }
 const dropdownItemStyle = { display: 'block', width: '100%', textAlign: 'left', padding: '6px 16px', fontSize: 13, color: 'var(--text)', background: 'transparent', border: 'none', cursor: 'pointer' }
 const groupStyle = { display: 'flex', gap: '2px', alignItems: 'center' }
