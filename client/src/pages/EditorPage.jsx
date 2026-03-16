@@ -56,6 +56,24 @@ export default function EditorPage() {
   // Load title + recent docs
   useEffect(() => {
     async function load() {
+      // First, check for invite link
+      const params = new URLSearchParams(window.location.search)
+      const inviteToken = params.get('invite')
+      if (inviteToken && token) {
+        try {
+          await fetch(`${import.meta.env.VITE_API_URL}/invite/accept`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ token: inviteToken })
+          })
+          // Clean URL
+          window.history.replaceState({}, document.title, window.location.pathname)
+          if (show) show('You have joined the document!', 'success')
+        } catch (e) {
+          if (show) show('Invalid or expired invite link.', 'error')
+        }
+      }
+
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/docs`, {
           headers: { Authorization: `Bearer ${token}` }

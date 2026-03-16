@@ -7,16 +7,35 @@ const ROLES = ['viewer', 'editor', 'owner']
 export default function InviteModal({ docId, projectId, onClose }) {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState('editor')
+  const [linkRole, setLinkRole] = useState('viewer')
+  const [inviteLink, setInviteLink] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const [copied, setCopied] = useState(false)
   const [error, setError] = useState(null)
   const [members, setMembers] = useState([])
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user') || '{}')
 
   useEffect(() => {
-    if (docId) fetchMembers()
+    if (docId) {
+      fetchMembers()
+    }
   }, [docId])
+
+  useEffect(() => {
+    if (docId) generateLink()
+  }, [docId, linkRole])
+
+  async function generateLink() {
+    try {
+      const res = await fetch(`${API}/invite/link/${docId}/${linkRole}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const data = await res.json()
+      if (data.link) setInviteLink(data.link)
+    } catch {}
+  }
 
   async function fetchMembers() {
     try {
@@ -59,7 +78,11 @@ export default function InviteModal({ docId, projectId, onClose }) {
   }
 
   function copyLink() {
-    navigator.clipboard.writeText(window.location.href)
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
   }
 
   return (
@@ -75,12 +98,20 @@ export default function InviteModal({ docId, projectId, onClose }) {
         </div>
 
         {/* Share link */}
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', gap: 8 }}>
-          <input
-            readOnly value={window.location.href}
-            style={{ flex: 1, padding: '7px 10px', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text3)', fontFamily: 'var(--font-mono)' }}
-          />
-          <button onClick={copyLink} style={copyBtn}>⤴ Copy Link</button>
+        <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
+          <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--text2)', display: 'block', marginBottom: 8 }}>Invite Link</label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <select value={linkRole} onChange={e => setLinkRole(e.target.value)} style={select}>
+              {ROLES.map(r => <option key={r} value={r}>Can {r === 'viewer' ? 'view' : r === 'editor' ? 'edit' : 'own'}</option>)}
+            </select>
+            <input
+              readOnly value={inviteLink || 'Generating...'}
+              style={{ flex: 1, padding: '7px 10px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 13, color: 'var(--text3)', fontFamily: 'var(--font-mono)' }}
+            />
+            <button onClick={copyLink} disabled={!inviteLink} style={{ ...copyBtn, background: copied ? '#059669' : 'var(--bg2)', color: copied ? '#fff' : 'var(--text2)', borderColor: copied ? '#059669' : 'var(--border)' }}>
+              {copied ? '✓ Copied' : '⤴ Copy Link'}
+            </button>
+          </div>
         </div>
 
         {/* Invite form */}

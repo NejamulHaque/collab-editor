@@ -1,4 +1,5 @@
 const router = require('express').Router()
+const jwt = require('jsonwebtoken')
 const { pool } = require('../db')
 const auth = require('../middleware/auth')
 const { sendInviteEmail } = require('../utils/mailer')
@@ -116,6 +117,46 @@ router.delete('/members/:docId/:userId', auth, async (req, res) => {
     res.json({ success: true })
   } catch (err) {
     res.status(500).json({ error: err.message })
+  }
+})
+
+// GET /invite/link/:docId/:role — Generate a signed invite link
+router.get('/link/:docId/:role', auth, async (req, res) => {
+  const { docId, role } = req.params
+  try {
+    // Check if inviter has permission (must be owner or editor)
+    const memberRes = await pool.query('SELECT role FROM doc_members WHERE doc_id=$1 AND user_id=$2', [docId, req.user.userId])
+    if (!memberRes.rows.length || (memberRes.rows[0].role !== 'owner' && memberRes.rows[0].role !== 'editor')) {
+      return res.status(403).json({ error: 'Not authorized to create invite links' })
+    }
+    
+    // Create a JWT invite token valid for 7 days
+    const token = jwt.sign({ inviteDocId: docId, role }, process.env.JWT_SECRET, { expiresIn: '7d' })
+    const clientUrl = process.env.CORS_ORIGIN || 'https://collab-client-flt9.onrender.com'
+    const link = `${clientUrl}/doc/${docId}?invite=${token}`
+    res.json({ link })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST /invite/accept — Consume a signed invite token
+router.post('/accept', auth, async (req, res) => {
+  const { token } = req.body
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET)
+    if (!payload.inviteDocId || !payload.role) throw new Error('Invalid invite token payload')
+    
+    // Grant database access
+    await pool.query(
+      `INSERT INTO doc_members (doc_id, user_id, role) VALUES ($1,$2,$3)
+       ON CONFLICT (doc_id, user_id) DO NOTHING`, 
+      [payload.inviteDocId, req.user.userId, payload.role]
+    )
+    
+    res.json({ success: true, docId: payload.inviteDocId, role: payload.role })
+  } catch (err) {
+    res.status(400).json({ error: 'Invalid or expired invite link' })
   }
 })
 
