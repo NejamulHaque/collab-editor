@@ -1,0 +1,31 @@
+type User @table {
+  displayName: String!
+  email: String!
+  createdAt: Timestamp!
+  photoUrl: String
+}
+
+type Spreadsheet @table {
+  name: String!
+  owner: User!
+  createdAt: Timestamp!
+  updatedAt: Timestamp!
+  description: String
+  content: String
+}
+
+type Collaboration @table(key: ["user", "spreadsheet"]) {
+  user: User!
+  spreadsheet: Spreadsheet!
+  permissionLevel: String!
+  grantedAt: Timestamp!
+}
+
+type Cell @table {
+  spreadsheet: Spreadsheet!
+  row: Int!
+  column: Int!
+  value: String!
+  formula: String
+  format: String
+}

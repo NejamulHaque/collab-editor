@@ -1,0 +1,41 @@
+query ListAllInstances @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  instances {
+    id
+    name
+    description
+    ownerUid
+    creationTime
+    lastUpdateTime
+  }
+}
+
+query GetInstanceById($instanceId: ID!) @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  instance(id: $instanceId) {
+    id
+    name
+    description
+    ownerUid
+    creationTime
+    lastUpdateTime
+  }
+}
+
+mutation CreateInstance($name: String!, $description: String!) @auth(level: USER) {
+  instance_insert(data: {
+    name: $name,
+    description: $description,
+    ownerUid_expr: "auth.uid",
+    creationTime_expr: "request.time",
+    lastUpdateTime_expr: "request.time"
+  })
+}
+
+mutation UpdateInstance($instanceId: ID!, $name: String, $description: String) @auth(level: USER) {
+  instance_update(key: {
+    id: $instanceId
+  }, data: {
+    name: $name,
+    description: $description,
+    lastUpdateTime_expr: "request.time"
+  })
+}
