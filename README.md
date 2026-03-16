@@ -157,3 +157,25 @@ If hosting on platforms like Render or Heroku:
 1. Deploy the `/client` folder as a static site or Node web app.
 2. Add your built backend URL to your deployment variables: `VITE_API_URL=https://your-backend-server.com`
 3. The Vite build process (`npm run build`) will inject your `VITE_API_URL` during compilation. Be sure that there are **no trailing slashes** at the end of the URL (e.g. use `https://xyz.com` instead of `https://xyz.com/`).
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## 👨‍💻 Author
+
+**Nejamul Haque**
+
+[![GitHub](https://img.shields.io/badge/GitHub-NejamulHaque-black?style=flat-square&logo=github)](https://github.com/NejamulHaque)
+[![Email](https://img.shields.io/badge/Email-nejamulhaqueruhaan86%40gmail.com-red?style=flat-square&logo=gmail)](mailto:nejamulhaqueruhaan86@gmail.com)
+
+---
+
+<div align="center">
+
+**⭐ Star this repo if you found it useful!**
+
+Made with ❤️ by Nejamul Haque 
+</div>
