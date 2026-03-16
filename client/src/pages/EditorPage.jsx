@@ -30,7 +30,10 @@ export default function EditorPage() {
   const navigate = useNavigate()
   const containerRef = useRef(null)
   const user = JSON.parse(localStorage.getItem('user') || '{}')
-  const { connected, peers, wordCount, content, detectedLang, setLanguage, providerRef, ydocRef } = useCollabEditor(containerRef, docId, user)
+  const [userRole, setUserRole] = useState('viewer')
+  const isEditable = userRole === 'owner' || userRole === 'editor'
+  
+  const { connected, peers, wordCount, content, detectedLang, setLanguage, providerRef, ydocRef } = useCollabEditor(containerRef, docId, user, isEditable)
   const { theme, toggle } = useTheme()
   const { toast, show } = useToast()
 
@@ -82,10 +85,18 @@ export default function EditorPage() {
         setRecentDocs(Array.isArray(docs) ? docs : [])
         const doc = docs.find(d => d.id === docId)
         if (doc) { setDocTitle(doc.title); autoLangFromTitle(doc.title) }
+
+        // Fetch user role
+        const membersRes = await fetch(`${import.meta.env.VITE_API_URL}/invite/members/${docId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        const members = await membersRes.json()
+        const me = members.find(m => m.id === user.id)
+        if (me) setUserRole(me.role)
       } catch(e) {}
     }
     load()
-  }, [docId])
+  }, [docId, token])
 
   // Log this view
   useEffect(() => {
@@ -101,6 +112,10 @@ export default function EditorPage() {
     const el = document.querySelector('.cm-editor')
     if (el) el.style.fontSize = `${fontSize}px`
   }, [fontSize])
+
+  function togglePanel(name) {
+    setRightPanel(prev => prev === name ? null : name)
+  }
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -126,10 +141,6 @@ export default function EditorPage() {
     return () => window.removeEventListener('keydown', handler)
   }, [navigate, rightPanel])
 
-  function togglePanel(name) {
-    setRightPanel(prev => prev === name ? null : name)
-  }
-
   function autoLangFromTitle(title) {
     const ext = title.split('.').pop().toLowerCase()
     const map = { js:'javascript', jsx:'javascript', ts:'typescript', tsx:'typescript', py:'python', html:'html', css:'css', json:'json', java:'java', cpp:'cpp', c:'cpp', rs:'rust', sql:'sql', md:'markdown', php:'php', xml:'xml', txt:'plaintext' }
@@ -144,7 +155,7 @@ export default function EditorPage() {
   }
 
   async function saveTitle(newTitle) {
-    if (!newTitle.trim()) return
+    if (!isEditable || !newTitle.trim()) return
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/docs/${docId}`, {
         method: 'PATCH',
@@ -228,6 +239,7 @@ export default function EditorPage() {
             ydocRef={ydocRef} 
             providerRef={providerRef} 
             user={user} 
+            editable={isEditable}
             docTitle={docTitle}
             setDocTitle={setDocTitle}
             saveTitle={saveTitle}
@@ -256,22 +268,29 @@ export default function EditorPage() {
             </button>
             <div style={{ width: 1, height: 20, background: 'var(--border)', flexShrink: 0 }}/>
             <div style={{ width: 24, height: 24, borderRadius: 6, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>C</div>
-
-            {editingTitle ? (
-              <input autoFocus value={docTitle}
-                onChange={e => setDocTitle(e.target.value)}
+          {/* Title Area */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+            {editingTitle && isEditable ? (
+              <input
+                autoFocus
+                defaultValue={docTitle}
                 onBlur={e => saveTitle(e.target.value)}
                 onKeyDown={e => { if(e.key==='Enter') saveTitle(e.target.value); if(e.key==='Escape') setEditingTitle(false) }}
-                style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', background: 'var(--bg2)', border: '1.5px solid var(--accent)', borderRadius: 6, padding: '3px 10px', outline: 'none', minWidth: 180 }}
+                style={{ padding: '4px 8px', fontSize: 16, fontWeight: 700, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text)', outline: 'none', width: '250px' }}
               />
             ) : (
-              <span onClick={() => setEditingTitle(true)} title="Click to rename (F2)"
-                style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', cursor: 'text', padding: '3px 8px', borderRadius: 6, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                onMouseOver={e=>e.currentTarget.style.background='var(--bg2)'}
-                onMouseOut={e=>e.currentTarget.style.background='none'}>
-                {docTitle}
-              </span>
+              <div 
+                onClick={() => isEditable && setEditingTitle(true)} 
+                style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', cursor: isEditable ? 'text' : 'default', padding: '4px 8px', borderRadius: 6, transition: 'background 0.2s' }}
+                title={isEditable ? "Click to rename (F2)" : "View only"}
+              >
+                {docTitle} {!isEditable && <span style={{fontSize: 12, marginLeft: 8, background: 'var(--bg2)', padding: '2px 6px', borderRadius: 4, color: 'var(--text3)'}}>View Only</span>}
+              </div>
             )}
+            
+            {/* Owner badge or nothing */}
+            {userRole === 'owner' && <span style={{ fontSize: 10, padding: '2px 6px', background: '#f3e8ff', color: '#9333ea', borderRadius: 10, fontWeight: 700 }}>OWNER</span>}
+          </div>
           </div>
 
           {/* Center */}

@@ -74,7 +74,7 @@ function countWords(text) {
   return text.trim() === '' ? 0 : text.trim().split(/\s+/).length
 }
 
-export function useCollabEditor(containerRef, docId, user) {
+export function useCollabEditor(containerRef, docId, user, editable = true) {
   const [connected, setConnected] = useState(false)
   const [peers, setPeers] = useState([])
   const [wordCount, setWordCount] = useState(0)
@@ -83,6 +83,7 @@ export function useCollabEditor(containerRef, docId, user) {
   const [manualLang, setManualLang] = useState(null)
   const viewRef = useRef(null)
   const langCompartment = useRef(new Compartment())
+  const editableCompartment = useRef(new Compartment())
   const cleanupRef = useRef(null)
   const providerRef = useRef(null)
   const ydocRef = useRef(null)
@@ -97,6 +98,15 @@ export function useCollabEditor(containerRef, docId, user) {
       })
     }
   }, [])
+
+  // Sync editability
+  useEffect(() => {
+    if (viewRef.current) {
+      viewRef.current.dispatch({
+        effects: editableCompartment.current.reconfigure(EditorView.editable.of(editable))
+      })
+    }
+  }, [editable])
 
   useEffect(() => {
     if (!containerRef.current || !docId || !user) return
@@ -132,6 +142,7 @@ export function useCollabEditor(containerRef, docId, user) {
       state: EditorState.create({
         extensions: [
           basicSetup,
+          editableCompartment.current.of(EditorView.editable.of(editable)),
           langCompartment.current.of(javascript({ jsx: true })),
           keymap.of(yUndoManagerKeymap),
           yCollab(ytext, provider.awareness, { undoManager }),

@@ -25,10 +25,11 @@ function getPeerColor(name) {
   return colors[Math.abs(hash) % colors.length]
 }
 
-export default function RichTextEditor({ ydocRef, providerRef, user }) {
+export default function RichTextEditor({ ydocRef, providerRef, user, editable = true }) {
   const containerRef = useRef(null)
 
   const editor = useEditor({
+    editable,
     extensions: [
       StarterKit.configure({
         // The Collaboration extension comes with its own history handling
@@ -63,6 +64,13 @@ export default function RichTextEditor({ ydocRef, providerRef, user }) {
     ],
     // Let Yjs handle initial content
   })
+
+  // Sync editability if it changes dynamically after mount
+  useEffect(() => {
+    if (editor && editor.isEditable !== editable) {
+      editor.setEditable(editable)
+    }
+  }, [editor, editable])
 
   // Basic styling for the editor content area
   // (We use a dynamic style block to target ProseMirror classes)
@@ -148,7 +156,7 @@ export default function RichTextEditor({ ydocRef, providerRef, user }) {
         }
       `}</style>
 
-      <RichTextToolbar editor={editor} />
+      {editable && <RichTextToolbar editor={editor} />}
       
       <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg2)' }} ref={containerRef}>
         <EditorContent editor={editor} />
