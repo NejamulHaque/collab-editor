@@ -39,4 +39,36 @@ router.post('/login', async (req, res) => {
   }
 })
 
+router.post('/google', async (req, res) => {
+  const { name, email, uid } = req.body
+  if (!email || !uid) return res.status(400).json({ error: 'Missing Google payload' })
+
+  try {
+    // 1. Check if user already exists
+    let result = await pool.query('SELECT * FROM users WHERE email=$1', [email])
+    let user = result.rows[0]
+
+    // 2. If not, auto-provision their account
+    if (!user) {
+      // Generate an impossible-to-guess password hash since they use Google
+      const randomPassword = require('crypto').randomBytes(32).toString('hex')
+      const hashed = await bcrypt.hash(randomPassword, 10)
+      
+      result = await pool.query(
+        'INSERT INTO users (name, email, password_hash) VALUES ($1,$2,$3) RETURNING id, name, email',
+        [name || 'Google User', email, hashed]
+      )
+      user = result.rows[0]
+    }
+
+    // 3. Issue standard CollabSheets JWT
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' })
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email } })
+
+  } catch (err) {
+    console.error('Google Auth Error:', err)
+    res.status(500).json({ error: 'Server error during Google authentication' })
+  }
+})
+
 module.exports = router
