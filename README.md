@@ -95,6 +95,10 @@ npm install
 # Create environment configuration
 touch .env
 ```
+**Initialize the Database Schema:** Instead of running manual SQL, you can hit the database setup route:
+1. Start your server: `node server.js`
+2. Navigate to `http://localhost:3000/setup-db` in your browser. This will automatically execute the required setup migrations. 
+
 Add the following to your `server/.env` file:
 ```env
 # Server
@@ -110,8 +114,14 @@ DB_NAME=collab_db
 # Security & AI
 JWT_SECRET=super_secret_jwt_key
 GEMINI_API_KEY=your_google_ai_key
+
+# Email Invitations (Nodemailer)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+SMTP_FROM=noreply@collabsheets.com
 ```
-**Initialize the Database Schema:** Instead of running manual SQL, you can hit the database setup route:
 1. Start your server: `node server.js`
 2. Navigate to `http://localhost:3000/setup-db` in your browser. This will automatically execute the required setup migrations. 
 

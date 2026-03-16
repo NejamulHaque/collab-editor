@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const { pool } = require('../db')
 const auth = require('../middleware/auth')
+const { sendInviteEmail } = require('../utils/mailer')
 
 // POST /invite — send an invite for a doc or project
 router.post('/', auth, async (req, res) => {
@@ -34,6 +35,25 @@ router.post('/', auth, async (req, res) => {
          ON CONFLICT (project_id, user_id) DO UPDATE SET role=$3`,
         [project_id, inviteeId, role || 'viewer']
       )
+    }
+
+    // Try sending email
+    try {
+      const inviterRes = await pool.query('SELECT name FROM users WHERE id=$1', [req.user.userId])
+      const inviterName = inviterRes.rows[0]?.name || 'Someone'
+
+      let itemName = 'a document'
+      if (doc_id) {
+        const docRes = await pool.query('SELECT title FROM docs WHERE id=$1', [doc_id]).catch(() => ({rows:[]}))
+        if (docRes.rows && docRes.rows.length > 0) itemName = docRes.rows[0].title
+      }
+
+      const clientUrl = process.env.CORS_ORIGIN || 'https://collab-client-flt9.onrender.com'
+      const itemLink = doc_id ? `${clientUrl}/doc/${doc_id}` : clientUrl
+
+      await sendInviteEmail(invitee_email, inviterName, itemName, itemLink, role || 'viewer')
+    } catch (emailErr) {
+      console.error('Failed to dispatch explicit email:', emailErr.message)
     }
 
     res.status(201).json(result.rows[0] || { message: 'Already invited' })
