@@ -121,3 +121,25 @@ body { min-height: 100vh; }
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .rich-text-container .ProseMirror, .rich-text-container .ProseMirror * {
+    visibility: visible;
+  }
+  .rich-text-container .ProseMirror {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 1cm;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .toast, .modal-backdrop {
+    display: none !important;
+  }
+}

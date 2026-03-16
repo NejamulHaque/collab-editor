@@ -41,8 +41,8 @@ export default function Register() {
       <div style={{ flex: 1, background: dark ? '#064e3b' : 'linear-gradient(135deg,#064e3b,#047857)', padding: 48, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={logoStyle}>C</div>
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>CollabDocs</span>
+            <img src="/H&S.png" alt="Logo" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }} />
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>CollabSheets</span>
           </div>
           <button onClick={toggle} style={iconBtn}>{dark ? '☀️' : '🌙'}</button>
         </div>
@@ -72,7 +72,7 @@ export default function Register() {
           {error && <div style={errorStyle}>{error}</div>}
 
           <form onSubmit={handleSubmit}>
-            <Field label="Full name" type="text" placeholder="Rahul Kumar" value={form.name} onChange={v => setForm({...form, name: v})} />
+            <Field label="Full name" type="text" placeholder="Najamul Haque" value={form.name} onChange={v => setForm({...form, name: v})} />
             <Field label="Email address" type="email" placeholder="you@example.com" value={form.email} onChange={v => setForm({...form, email: v})} />
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Password</label>

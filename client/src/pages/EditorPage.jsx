@@ -12,6 +12,7 @@ import LiveChat from '../components/LiveChat'
 import InviteModal from '../components/InviteModal'
 import ViewerLog from '../components/ViewerLog'
 import SplitPane from '../components/SplitPane'
+import RichTextEditor from '../components/RichTextEditor'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { Toast, useToast } from '../components/Toast.jsx'
 
@@ -47,6 +48,7 @@ export default function EditorPage() {
   const [showTerminal, setShowTerminal] = useState(false)
   const [showInvite, setShowInvite] = useState(false)
   const [showViewers, setShowViewers] = useState(false)
+  const [editorMode, setEditorMode] = useState('code') // 'code' | 'doc'
 
   const token = localStorage.getItem('token')
   const readingTime = Math.max(1, Math.ceil(wordCount / 200))
@@ -114,6 +116,7 @@ export default function EditorPage() {
     const ext = title.split('.').pop().toLowerCase()
     const map = { js:'javascript', jsx:'javascript', ts:'typescript', tsx:'typescript', py:'python', html:'html', css:'css', json:'json', java:'java', cpp:'cpp', c:'cpp', rs:'rust', sql:'sql', md:'markdown', php:'php', xml:'xml', txt:'plaintext' }
     if (map[ext]) { setSelectedLang(map[ext]); setLanguage(map[ext]) }
+    if (['md', 'txt', 'rtf', 'doc', 'docx'].includes(ext)) { setEditorMode('doc') } else { setEditorMode('code') }
   }
 
   function handleLangSelect(langId) {
@@ -194,15 +197,36 @@ export default function EditorPage() {
   })()
 
   // Main editor pane
+  // We must always render the containerRef to keep CodeMirror alive, but we conditionally hide it
   const editorPane = (
-    <div ref={containerRef} style={{ flex: 1, overflow: 'auto', background: 'var(--bg)' }} />
+    <>
+      <div 
+        ref={containerRef} 
+        style={{ flex: 1, overflow: 'auto', background: 'var(--bg)', display: editorMode === 'code' ? 'block' : 'none' }} 
+      />
+      {editorMode === 'doc' && (
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex' }}>
+          <RichTextEditor 
+            ydocRef={ydocRef} 
+            providerRef={providerRef} 
+            user={user} 
+            docTitle={docTitle}
+            setDocTitle={setDocTitle}
+            saveTitle={saveTitle}
+            peers={peers}
+            onBack={() => navigate('/dashboard')}
+            onSwitchMode={() => setEditorMode('code')}
+          />
+        </div>
+      )}
+    </>
   )
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--bg)', fontFamily: 'var(--font)' }}>
 
-      {/* Toolbar — hidden in zen mode */}
-      {!zenMode && (
+      {/* Toolbar — hidden in zen mode, also hidden in doc mode (RichTextEditor brings its own) */}
+      {!zenMode && editorMode === 'code' && (
         <div style={{ height: 52, borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', padding: '0 10px', gap: 6, flexShrink: 0, background: 'var(--bg)' }}>
 
           {/* Left */}
@@ -234,7 +258,11 @@ export default function EditorPage() {
 
           {/* Center */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            <LanguageSelector currentLang={selectedLang} detectedLang={detectedLang} onSelect={handleLangSelect} />
+            <div style={{ display: 'flex', background: 'var(--bg2)', borderRadius: 6, padding: 2, border: '1px solid var(--border)' }}>
+              <button onClick={() => setEditorMode('code')} style={{ ...modeBtn, background: editorMode === 'code' ? 'var(--bg)' : 'transparent', boxShadow: editorMode === 'code' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none', color: editorMode === 'code' ? 'var(--text)' : 'var(--text2)' }}>&lt;/&gt; Code</button>
+              <button onClick={() => setEditorMode('doc')} style={{ ...modeBtn, background: editorMode === 'doc' ? 'var(--bg)' : 'transparent', boxShadow: editorMode === 'doc' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none', color: editorMode === 'doc' ? 'var(--text)' : 'var(--text2)' }}>📝 Doc</button>
+            </div>
+            {editorMode === 'code' && <LanguageSelector currentLang={selectedLang} detectedLang={detectedLang} onSelect={handleLangSelect} />}
             <button onClick={() => setPaletteOpen(true)} title="Command Palette (Ctrl+P)" style={cmdBtn}>
               <span>⌘</span><span>Commands</span>
             </button>
@@ -266,7 +294,7 @@ export default function EditorPage() {
       )}
 
       {/* Stats bar */}
-      {!zenMode && showStats && (
+      {!zenMode && showStats && editorMode === 'code' && (
         <div style={{ height: 30, borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', padding: '0 18px', gap: 18, background: 'var(--bg2)', flexShrink: 0 }}>
           <span style={stat}>{wordCount.toLocaleString()} words</span>
           <span style={stat}>{content.length.toLocaleString()} chars</span>
@@ -345,5 +373,6 @@ const ghostBtn   = { display:'flex', alignItems:'center', gap:5, padding:'5px 10
 const outlineBtn = { padding:'5px 10px', background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:8, cursor:'pointer', fontSize:13, color:'var(--text2)', fontWeight:500, flexShrink:0 }
 const primaryBtn = { display:'flex', alignItems:'center', gap:5, padding:'6px 13px', background:'linear-gradient(135deg,#6366f1,#4f46e5)', color:'#fff', border:'none', borderRadius:8, fontSize:13, fontWeight:600, cursor:'pointer', flexShrink:0 }
 const cmdBtn     = { display:'flex', alignItems:'center', gap:6, padding:'5px 10px', background:'var(--bg2)', border:'1px solid var(--border)', borderRadius:8, cursor:'pointer', fontSize:13, color:'var(--text2)', fontWeight:500, transition:'all .15s', flexShrink:0 }
+const modeBtn    = { border: 'none', borderRadius: 4, padding: '4px 10px', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.1s', display: 'flex', alignItems: 'center', gap: 4 }
 const stat       = { fontSize:12, color:'var(--text3)', whiteSpace:'nowrap' }
 const kbd        = { background:'rgba(255,255,255,0.15)', border:'1px solid rgba(255,255,255,0.2)', borderRadius:5, padding:'1px 6px', fontSize:11, color:'#fff' }

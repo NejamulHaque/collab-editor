@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [renaming, setRenaming] = useState(null)
   const [renameVal, setRenameVal] = useState('')
   const [profileOpen, setProfileOpen] = useState(false)
+  const [aboutOpen, setAboutOpen] = useState(false)
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
   const { toast, show } = useToast()
@@ -82,13 +83,13 @@ export default function Dashboard() {
       <aside style={{ width:240, background:'var(--bg)', borderRight:'1px solid var(--border)', display:'flex', flexDirection:'column', height:'100vh', position:'sticky', top:0 }}>
         <div style={{ padding:'20px 16px', borderBottom:'1px solid var(--border)' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ width:32, height:32, borderRadius:8, background:'linear-gradient(135deg,#6366f1,#8b5cf6)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontWeight:800, fontSize:16 }}>C</div>
-            <span style={{ fontWeight:700, fontSize:16, color:'var(--text)' }}>CollabDocs</span>
+            <img src="/H&S.png" alt="Logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
+            <span style={{ fontWeight:700, fontSize:16, color:'var(--text)' }}>CollabSheets</span>
           </div>
         </div>
 
         <nav style={{ flex:1, padding:'12px 8px' }}>
-          <div style={{ padding:'8px 12px', borderRadius:8, background:'var(--accent-light)', color:'var(--accent)', fontWeight:600, fontSize:14, display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ padding:'8px 12px', borderRadius:8, background:'var(--accent-light)', color:'var(--accent)', fontWeight:600, fontSize:14, display:'flex', alignItems:'center', gap:8, marginBottom: 4, cursor:'pointer' }}>
             <span>📄</span> All Documents
           </div>
         </nav>
@@ -222,6 +223,49 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Floating About Developer Section */}
+      <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 999 }}>
+        {aboutOpen && (
+          <div className="fade-in" style={{ position: 'absolute', bottom: 70, right: 0, width: 340, background: 'var(--bg)', borderRadius: 16, boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border)', overflow: 'hidden' }}>
+            <div style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)', padding: '24px 20px', textAlign: 'center', position: 'relative' }}>
+               <button onClick={()=>setAboutOpen(false)} style={{ position:'absolute', top:12, right:12, background:'rgba(255,255,255,0.1)', color:'#fff', border:'none', borderRadius:'50%', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:14 }}>✕</button>
+               <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#fff', padding: 3, margin: '0 auto 12px' }}>
+                 <img src="/H&S.png" alt="Developer" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+               </div>
+               <h3 style={{ color: '#fff', fontSize: 18, fontWeight: 700, margin: 0 }}>Nejamul Haque</h3>
+               <p style={{ color: '#94a3b8', fontSize: 13, margin: '4px 0 0' }}>Full Stack Developer & AI Engineer</p>
+            </div>
+            
+            <div style={{ padding: 20 }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                <a href="https://github.com/NejamulHaque" target="_blank" rel="noreferrer" style={{ flex: 1, padding: '8px 0', textAlign: 'center', background: 'var(--bg2)', color: 'var(--text)', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600, border: '1px solid var(--border)' }}>GitHub</a>
+                <a href="https://linkedin.com/in/nejamulhaque" target="_blank" rel="noreferrer" style={{ flex: 1, padding: '8px 0', textAlign: 'center', background: 'var(--bg2)', color: 'var(--text)', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600, border: '1px solid var(--border)' }}>LinkedIn</a>
+                <a href="https://portfolio-nejamulhaque.vercel.app/" target="_blank" rel="noreferrer" style={{ flex: 1, padding: '8px 0', textAlign: 'center', background: 'var(--bg2)', color: 'var(--text)', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600, border: '1px solid var(--border)' }}>Portfolio</a>
+              </div>
+
+              <div style={{ textAlign: 'center', padding: 16, background: 'var(--bg2)', borderRadius: 12, border: '1px dashed var(--border2)' }}>
+                <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>Support my work ☕</h4>
+                <p style={{ fontSize: 12, color: 'var(--text3)', margin: '0 0 12px', lineHeight: 1.4 }}>If you find CollabSheets helpful, consider supporting its development!</p>
+                <div style={{ background: '#fff', padding: 8, display: 'inline-block', borderRadius: 8, boxShadow: 'var(--shadow)', marginBottom: 8 }}>
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=upi://pay?pa=nejamulhaque@freecharge&pn=Nejamul%20Haque&cu=INR`} alt="UPI QR Code" style={{ width: 120, height: 120, display: 'block' }} />
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text2)', fontWeight: 600, letterSpacing: 0.5 }}>SCAN TO PAY VIA UPI</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <button 
+          onClick={() => setAboutOpen(!aboutOpen)}
+          style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', boxShadow: 'var(--shadow-md)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, transition: 'transform .2s' }}
+          onMouseOver={e=>e.currentTarget.style.transform='scale(1.05)'}
+          onMouseOut={e=>e.currentTarget.style.transform='scale(1)'}
+          title="About Developer"
+        >
+          {aboutOpen ? '✕' : '👨‍💻'}
+        </button>
+      </div>
 
       <Toast message={toast} />
     </div>

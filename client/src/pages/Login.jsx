@@ -38,8 +38,8 @@ export default function Login() {
       <div style={{ flex: 1, background: dark ? '#1e1b4b' : 'linear-gradient(135deg,#1e1b4b,#4338ca)', padding: 48, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={logoStyle}>C</div>
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>CollabDocs</span>
+            <img src="/H&S.png" alt="Logo" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }} />
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>CollabSheets</span>
           </div>
           <button onClick={toggle} style={iconBtn}>{dark ? '☀️' : '🌙'}</button>
         </div>
