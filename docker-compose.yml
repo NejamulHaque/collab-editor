@@ -1,0 +1,49 @@
+services:
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: http://localhost:1234
+        VITE_WS_URL: ws://localhost:1234
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+
+  server:
+    build: ./server
+    ports:
+      - "1234:1234"
+    environment:
+      PORT: 1234
+      JWT_SECRET: superSecret123ChangeThis
+      DATABASE_URL: postgresql://postgres:password@postgres:5432/collab_editor
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: collab_editor
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./server/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:

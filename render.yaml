@@ -1,0 +1,64 @@
+services:
+  # ── PostgreSQL ──
+  - type: pserv
+    name: collab-postgres
+    plan: free
+    env: docker
+    dockerfilePath: ./Dockerfile.postgres
+    envVars:
+      - key: POSTGRES_DB
+        value: collab_editor
+      - key: POSTGRES_USER
+        value: postgres
+      - key: POSTGRES_PASSWORD
+        generateValue: true
+
+  # ── Redis ──
+  - type: redis
+    name: collab-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+
+  # ── Server (Node.js API + WebSocket) ──
+  - type: web
+    name: collab-server
+    plan: free
+    env: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    envVars:
+      - key: PORT
+        value: 1234
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromService:
+          name: collab-postgres
+          type: pserv
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: collab-redis
+          type: redis
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+
+  # ── Client (React SPA on Nginx) ──
+  - type: web
+    name: collab-client
+    plan: free
+    env: docker
+    dockerfilePath: ./client/Dockerfile
+    dockerContext: ./client
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: collab-server
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: VITE_WS_URL
+        value: wss://collab-server.onrender.com
