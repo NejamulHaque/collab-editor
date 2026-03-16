@@ -114,9 +114,6 @@ export default function RichTextToolbar({ editor }) {
       { label: 'Cut', action: () => document.execCommand('cut') },
       { label: 'Copy', action: () => document.execCommand('copy') },
     ],
-    'View': [
-      { label: 'Mode: Code View', action: onSwitchMode }
-    ],
     'Insert': [
       { label: 'Image', action: addImage },
       { label: 'Link', action: setLink },
