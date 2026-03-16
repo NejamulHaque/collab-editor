@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react'
 
 export default function RichTextToolbar({ editor }) {
   const fileInputRef = useRef(null)
+  const [showDeveloper, setShowDeveloper] = useState(false)
 
   if (!editor) return null
 
@@ -133,7 +134,8 @@ export default function RichTextToolbar({ editor }) {
       { label: 'Word Count', action: () => alert(`Word count: ${editor.storage.characterCount?.words() || 0}`) }
     ],
     'Help': [
-      { label: 'CollabSheets Help', action: () => alert('Welcome to CollabSheets!') }
+      { label: 'CollabSheets Help', action: () => alert('Welcome to CollabSheets!') },
+      { label: 'About Developer', action: () => setShowDeveloper(true) }
     ]
   }
 
@@ -266,6 +268,40 @@ export default function RichTextToolbar({ editor }) {
       </div>
 
       </div>
+
+      {/* About Developer Modal */}
+      {showDeveloper && (
+        <div className="modal-backdrop" onClick={() => setShowDeveloper(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="fade-in" onClick={e => e.stopPropagation()} style={{ width: 340, background: 'var(--bg)', borderRadius: 16, boxShadow: 'var(--shadow-lg)', border: '1px solid var(--border)', overflow: 'hidden' }}>
+            <div style={{ background: 'linear-gradient(135deg, #0f172a, #1e293b)', padding: '24px 20px', textAlign: 'center', position: 'relative' }}>
+               <button onClick={()=>setShowDeveloper(false)} style={{ position:'absolute', top:12, right:12, background:'rgba(255,255,255,0.1)', color:'#fff', border:'none', borderRadius:'50%', width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', fontSize:14 }}>✕</button>
+               <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#fff', padding: 3, margin: '0 auto 12px' }}>
+                 <img src="/H&S.png" alt="Developer" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+               </div>
+               <h3 style={{ color: '#fff', fontSize: 18, fontWeight: 700, margin: 0 }}>Nejamul Haque</h3>
+               <p style={{ color: '#94a3b8', fontSize: 13, margin: '4px 0 0' }}>Full Stack Developer & AI Engineer</p>
+            </div>
+            
+            <div style={{ padding: 20 }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                <a href="https://github.com/NejamulHaque" target="_blank" rel="noreferrer" style={{ flex: 1, padding: '8px 0', textAlign: 'center', background: 'var(--bg2)', color: 'var(--text)', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600, border: '1px solid var(--border)' }}>GitHub</a>
+                <a href="https://linkedin.com/in/nejamulhaque" target="_blank" rel="noreferrer" style={{ flex: 1, padding: '8px 0', textAlign: 'center', background: 'var(--bg2)', color: 'var(--text)', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600, border: '1px solid var(--border)' }}>LinkedIn</a>
+                <a href="https://portfolio-nejamulhaque.vercel.app/" target="_blank" rel="noreferrer" style={{ flex: 1, padding: '8px 0', textAlign: 'center', background: 'var(--bg2)', color: 'var(--text)', borderRadius: 8, textDecoration: 'none', fontSize: 13, fontWeight: 600, border: '1px solid var(--border)' }}>Portfolio</a>
+              </div>
+
+              <div style={{ textAlign: 'center', padding: 16, background: 'var(--bg2)', borderRadius: 12, border: '1px dashed var(--border2)' }}>
+                <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 6 }}>Support my work ☕</h4>
+                <p style={{ fontSize: 12, color: 'var(--text3)', margin: '0 0 12px', lineHeight: 1.4 }}>If you find CollabSheets helpful, consider supporting its development!</p>
+                <div style={{ background: '#fff', padding: 8, display: 'inline-block', borderRadius: 8, boxShadow: 'var(--shadow)', marginBottom: 8 }}>
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=upi://pay?pa=nejamulhaque@freecharge&pn=Nejamul%20Haque&cu=INR`} alt="UPI QR Code" style={{ width: 120, height: 120, display: 'block' }} />
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text2)', fontWeight: 600, letterSpacing: 0.5 }}>SCAN TO PAY VIA UPI</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }
