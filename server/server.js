@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken')
 const Y = require('yjs')
 const { loadDocument, setupAutosave } = require('./persistence')
 const { connectRedis, registerDocWithRedis } = require('./redis-adapter')
+const runMigrations = require('./migrate')
 
 const app = express()
 app.use(cors({ origin: '*' }))
@@ -22,6 +23,15 @@ app.use('/comments', require('./routes/comments'))
 app.use('/files', require('./routes/files'))
 app.use('/invite', require('./routes/invite'))
 app.get('/health', (req, res) => res.json({ status: 'ok' }))
+
+app.get('/setup-db', async (req, res) => {
+  try {
+    await runMigrations()
+    res.send('<h1>✅ Database initialized successfully!</h1><p>All tables have been created. You can now close this tab and start using the app.</p>')
+  } catch (err) {
+    res.status(500).send('<h1>❌ Database initialization failed!</h1><pre>' + err.message + '</pre>')
+  }
+})
 
 const server = http.createServer(app)
 const wss = new WebSocketServer({ server })
