@@ -3,6 +3,18 @@
 <p align="center">
   A powerful web application featuring a dual-mode Editor (Code View & Rich Text Document View), live collaboration, AI assistance, real-time chat, and a robust user dashboard.
 </p>
+<div align="center">
+
+![CollabSheets Banner](https://img.shields.io/badge/CollabSheets%20-00d4aa?style=for-the-badge&logo=vite&logoColor=white)
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Firebase-orange?style=for-the-badge&logo=firebase)](https://collab-client-flt9.onrender.com)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Firebase](https://img.shields.io/badge/Firebase-10.12.2-yellow?style=for-the-badge&logo=firebase)](https://firebase.google.com)
+
+
+[🌐 Live App](https://collab-client-flt9.onrender.com) · [🐛 Report Bug](https://github.com/NejamulHaque/collabsheets/issues) · [✨ Request Feature](https://github.com/NejamulHaque/collabsheets/issues)
+
+</div>
 
 ## ✨ Features
 
