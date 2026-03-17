@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext.jsx'
-import { Toast, useToast } from '../components/Toast.jsx'
+import { Toaster, toast } from 'react-hot-toast'
 
 const COLORS = ['#6366f1','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6']
 const docColor = id => { if(!id) return COLORS[0]; const n = id.charCodeAt(0)+id.charCodeAt(id.length-1); return COLORS[n%COLORS.length] }
@@ -20,7 +20,6 @@ export default function Dashboard() {
   const [aboutOpen, setAboutOpen] = useState(false)
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
-  const { toast, show } = useToast()
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const initials = user.name?.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || 'U'
@@ -33,11 +32,24 @@ export default function Dashboard() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  useEffect(() => {
+    const st = localStorage.getItem('token')
+    if (!st) { navigate('/'); return }
+    // Default greeting toast on login (only show once per session)
+    if (!sessionStorage.getItem('greeted')) {
+      setTimeout(() => toast(`Welcome back, ${user.name.split(' ')[0]} 👋`, { position: 'bottom-center', style: { fontSize: 14 } }), 500)
+      sessionStorage.setItem('greeted', 'true')
+    }
+  }, [navigate, user.name])
+
   async function fetchDocs() {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/docs`, { headers: { Authorization: `Bearer ${token}` } })
-      setDocs(Array.isArray(await res.json()) ? await (await fetch(`${import.meta.env.VITE_API_URL}/docs`, { headers: { Authorization: `Bearer ${token}` } })).json() : [])
-    } catch(e) {} finally { setLoading(false) }
+      const json = await res.json()
+      if (res.ok && Array.isArray(json)) setDocs(json)
+    } catch(e) {
+      toast.error('Failed to load documents.')
+    } finally { setLoading(false) }
   }
 
   async function createDoc() {
@@ -45,25 +57,44 @@ export default function Dashboard() {
     setCreating(true)
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/docs`, { method:'POST', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`}, body: JSON.stringify({ title }) })
-      navigate(`/doc/${(await res.json()).id}`)
-    } finally { setCreating(false) }
+      const json = await res.json()
+      if (res.ok) {
+        setDocs(d => [json, ...d])
+        toast.success(`Created "${json.title}"`, { style: { fontSize: 13 } })
+        navigate(`/doc/${json.id}`)
+      } else toast.error(json.error || 'Failed to create doc')
+    } catch(err) { toast.error('Creation failed') } finally { setCreating(false) }
   }
 
   async function deleteDoc(id, e) {
     e.stopPropagation()
     if (!confirm('Delete this document?')) return
-    await fetch(`${import.meta.env.VITE_API_URL}/docs/${id}`, { method:'DELETE', headers:{ Authorization:`Bearer ${token}` } })
-    setDocs(d => d.filter(x => x.id !== id))
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/docs/${id}`, { method:'DELETE', headers:{ Authorization:`Bearer ${token}` } })
+      if (res.ok) {
+        setDocs(d => d.filter(x => x.id !== id))
+        toast('Document deleted', { icon: '🗑️', style: { fontSize: 13 } })
+      } else {
+        const err = await res.json()
+        toast.error(err.error || 'Delete failed')
+      }
+    } catch(err) { toast.error('Delete failed') }
     setMenuOpen(null)
-    show('Document deleted')
   }
 
   async function renameDoc(id) {
     if (!renameVal.trim()) return
-    await fetch(`${import.meta.env.VITE_API_URL}/docs/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`}, body: JSON.stringify({ title: renameVal }) })
-    setDocs(d => d.map(x => x.id===id ? {...x, title: renameVal} : x))
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/docs/${id}`, { method:'PATCH', headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`}, body: JSON.stringify({ title: renameVal }) })
+      if (res.ok) {
+        setDocs(d => d.map(x => x.id===id ? {...x, title: renameVal} : x))
+        toast.success('Document renamed', { style: { fontSize: 13 } })
+      } else {
+        const err = await res.json()
+        toast.error(err.error || 'Rename failed')
+      }
+    } catch(err) { toast.error('Rename failed') }
     setRenaming(null); setMenuOpen(null)
-    show('Document renamed')
   }
 
   function copyLink(id, e) {
@@ -267,7 +298,7 @@ export default function Dashboard() {
         </button>
       </div>
 
-      <Toast message={toast} />
+      <Toaster />
     </div>
   )
 }

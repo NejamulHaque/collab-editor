@@ -15,6 +15,7 @@ import SplitPane from '../components/SplitPane'
 import RichTextEditor from '../components/RichTextEditor'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { Toast, useToast } from '../components/Toast.jsx'
+import { Toaster, toast } from 'react-hot-toast'
 
 // Panel identifiers for right sidebar
 const PANELS = {
@@ -35,7 +36,7 @@ export default function EditorPage() {
   
   const { connected, peers, wordCount, content, detectedLang, setLanguage, providerRef, ydocRef } = useCollabEditor(containerRef, docId, user, isEditable)
   const { theme, toggle } = useTheme()
-  const { toast, show } = useToast()
+  const { toast: showToast, show } = useToast() // Renamed to avoid conflict with react-hot-toast's toast
 
   const [docTitle, setDocTitle] = useState('Untitled')
   const [editingTitle, setEditingTitle] = useState(false)
@@ -113,6 +114,73 @@ export default function EditorPage() {
     if (el) el.style.fontSize = `${fontSize}px`
   }, [fontSize])
 
+  // Advanced Notifications: Presence (Joined/Left)
+  const prevPeersRef = useRef([])
+  // We use this ref to access the current rightPanel inside event listeners without closure staleness
+  const rightPanelRef = useRef(rightPanel)
+  useEffect(() => { rightPanelRef.current = rightPanel }, [rightPanel])
+
+  useEffect(() => {
+    if (!connected) return
+    const prev = prevPeersRef.current
+    const current = peers
+    
+    // find new peers
+    current.forEach(p => {
+      if (!prev.find(x => x.clientId === p.clientId)) {
+        toast.success(`${p.name} joined the document`, { position: 'bottom-right', style: { fontSize: 13, background: 'var(--bg2)', color: 'var(--text)' } })
+      }
+    })
+    
+    // find left peers
+    prev.forEach(p => {
+      if (!current.find(x => x.clientId === p.clientId)) {
+        toast(`${p.name} left the document`, { icon: '👋', position: 'bottom-right', style: { fontSize: 13, background: 'var(--bg2)', color: 'var(--text)' } })
+      }
+    })
+    
+    prevPeersRef.current = current
+  }, [peers, connected])
+
+  // Advanced Notifications: Global Live Chat Popups
+  useEffect(() => {
+    if (!connected || !ydocRef.current) return
+    const ydoc = ydocRef.current
+    const chatArray = ydoc.getArray('chat-messages')
+    
+    const handleNewChat = (event) => {
+      // Don't show popup if they already have the chat panel open!
+      if (rightPanelRef.current === PANELS.CHAT) return
+
+      event.changes.added.forEach(item => {
+        item.content.getContent().forEach(msg => {
+          if (msg.authorId !== user.id) {
+            toast((t) => (
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: msg.color || 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                  {(msg.author || '?')[0].toUpperCase()}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 'bold', fontSize: 13, color: 'var(--text)' }}>{msg.author}</div>
+                  <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 2 }}>{msg.content}</div>
+                </div>
+                <button 
+                  onClick={() => { toast.dismiss(t.id); setRightPanel(PANELS.CHAT) }}
+                  style={{ marginLeft: 'auto', padding: '6px 12px', background: '#e0e7ff', color: '#4f46e5', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, transition: '0.2s' }}
+                >
+                  Reply
+                </button>
+              </div>
+            ), { duration: 5000, position: 'top-right', style: { background: 'var(--bg)', border: '1px solid var(--border)' } })
+          }
+        })
+      })
+    }
+    
+    chatArray.observe(handleNewChat)
+    return () => chatArray.unobserve(handleNewChat)
+  }, [connected, user.id, setRightPanel])
+
   function togglePanel(name) {
     setRightPanel(prev => prev === name ? null : name)
   }
@@ -151,7 +219,7 @@ export default function EditorPage() {
   function handleLangSelect(langId) {
     setSelectedLang(langId)
     setLanguage(langId)
-    show(`Language: ${langId === 'auto' ? 'Auto detect' : langId}`)
+    toast.success(`Language: ${langId === 'auto' ? 'Auto detect' : langId}`, { style: { fontSize: 13 } })
   }
 
   async function saveTitle(newTitle) {
@@ -164,8 +232,10 @@ export default function EditorPage() {
       })
       setDocTitle(newTitle)
       autoLangFromTitle(newTitle)
-      show('Title saved')
-    } catch(e) {}
+      toast.success('Title saved', { position: 'bottom-center', style: { fontSize: 13 } })
+    } catch(e) {
+      toast.error('Failed to save title')
+    }
     setEditingTitle(false)
   }
 
@@ -175,18 +245,13 @@ export default function EditorPage() {
     a.href = URL.createObjectURL(blob)
     a.download = `${docTitle.replace(/\.[^.]+$/, '')}.${ext}`
     a.click()
-    show(`Exported as .${ext}`)
+    toast.success(`Exported as .${ext}`, { position: 'bottom-center', style: { fontSize: 13 } })
   }
 
-  // Restore a previous version by replacing editor content via clipboard + paste simulation
   function handleRestore(text) {
     if (!window.confirm('Restore this version? Your current content will be replaced.')) return
-    // Navigate away and back to re-init or use ytext directly
-    show('Version restored — refreshing editor…')
-    // Full approach: write to ytext via the shared doc
-    // Quick workaround: copy to clipboard so user can paste
     navigator.clipboard.writeText(text)
-    show('Version copied to clipboard. Select all and paste to restore.')
+    toast('Version copied! Select all and paste to restore.', { icon: '📋', position: 'bottom-center', style: { fontSize: 13 } })
   }
 
   const handleCommand = useCallback((cmd) => {
@@ -194,22 +259,22 @@ export default function EditorPage() {
       case 'file.new':        navigate('/dashboard'); break
       case 'file.export.md':  exportContent('md', 'text/markdown'); break
       case 'file.export.txt': exportContent('txt', 'text/plain'); break
-      case 'file.copy.link':  navigator.clipboard.writeText(window.location.href); show('Link copied!'); break
+      case 'file.copy.link':  navigator.clipboard.writeText(window.location.href); toast.success('Link copied!', { position: 'bottom-center', style: { fontSize: 13 }}); break
       case 'file.rename':     setEditingTitle(true); break
       case 'file.dashboard':  navigate('/dashboard'); break
-      case 'editor.copy':     navigator.clipboard.writeText(content); show('Content copied'); break
-      case 'view.theme':      toggle(); show(`Switched to ${theme === 'dark' ? 'light' : 'dark'} mode`); break
+      case 'editor.copy':     navigator.clipboard.writeText(content); toast.success('Content copied', { position: 'bottom-center', style: { fontSize: 13 }}); break
+      case 'view.theme':      toggle(); toast(`Switched to ${theme === 'dark' ? 'light' : 'dark'} mode`, { icon: theme==='dark'?'☀️':'🌙', position: 'bottom-center', style: { fontSize: 13 }}); break
       case 'view.zen':        setZenMode(z => !z); break
       case 'view.stats':      setShowStats(s => !s); break
       case 'view.fontup':     setFontSize(f => Math.min(f+1, 24)); break
       case 'view.fontdown':   setFontSize(f => Math.max(f-1, 10)); break
       case 'collab.share':    setShowInvite(true); break
-      case 'collab.users':    show(`${peers.length + 1} user(s) online`); break
+      case 'collab.users':    toast(`${peers.length + 1} user(s) online`, { icon: '👥', position: 'bottom-center', style: { fontSize: 13 }}); break
       default:
         if (cmd.id.startsWith('lang.')) handleLangSelect(cmd.id.replace('lang.', ''))
         else if (cmd.id.startsWith('doc.open.')) navigate(`/doc/${cmd.docId}`)
     }
-  }, [theme, zenMode, fontSize, peers, content, docTitle, navigate, toggle, show])
+  }, [theme, zenMode, fontSize, peers, content, docTitle, navigate, toggle])
 
   // Right panel component
   const rightPanelNode = (() => {
@@ -369,7 +434,7 @@ export default function EditorPage() {
       )}
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} onCommand={handleCommand} recentDocs={recentDocs} />
-      <Toast message={toast}/>
+      <Toaster />
 
       {/* Invite modal */}
       {showInvite && <InviteModal docId={docId} onClose={() => setShowInvite(false)} />}
