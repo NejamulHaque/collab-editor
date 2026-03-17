@@ -86,9 +86,11 @@ process.on('SIGTERM', () => {
 })
 
 async function start() {
-  await connectRedis()
+  // Start server immediately, don't wait for Redis
   const PORT = process.env.PORT || 1234
   server.listen(PORT, () => console.log('Server on port ' + PORT))
+  // Try Redis in background (non-blocking)
+  connectRedis().catch(err => console.log('Redis unavailable, running in single-server mode'))
 }
 
 start()
