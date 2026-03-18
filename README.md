@@ -12,7 +12,7 @@
 [![Firebase](https://img.shields.io/badge/Firebase-10.12.2-yellow?style=for-the-badge&logo=firebase)](https://firebase.google.com)
 
 
-[🌐 Live App](https://collab-client-flt9.onrender.com) · [🐛 Report Bug](https://github.com/NejamulHaque/collabsheets/issues) · [✨ Request Feature](https://github.com/NejamulHaque/collabsheets/issues)
+[🌐 Live App](https://collab-client-flt9.onrender.com) · [🐛 Report Bug](https://github.com/NejamulHaque/CollabSheets/issues) · [✨ Request Feature](https://github.com/NejamulHaque/CollabSheets/issues)
 
 </div>
 
@@ -20,8 +20,18 @@
 
 ### 🖥️ Core Functionality
 * **Dual Editor Modes:** Seamlessly switch between a full-featured Code Editor (powered by CodeMirror) and a Rich Text Document Editor (powered by Tiptap).
-* **Live Multiplayer Collaboration:** Edit documents simultaneously with multiple users. Watch changes happen in real-time with live collaborator cursor tracking, powered by Yjs.
+* **Live Multiplayer Collaboration:** Edit documents simultaneously with multiple users. Watch changes happen in real-time with live collaborator cursor tracking and selection sharing, powered by Yjs.
 * **Authentication & User Profiles:** Secure registration and login workflows. Profiles are protected with JWT authentication and feature personalized avatars and online statuses.
+
+### 💻 Advanced Code Editor
+* **Pro Toolbar:** A dedicated control bar for the code editor, allowing users to toggle:
+  - **Themes:** Switch between high-contrast Dark and professional Light modes.
+  - **Line Wrapping:** Effortlessly toggle horizontal scrolling.
+  - **Font Size:** Real-time font size adjustment for optimal readability.
+* **Floating Language Selector:** A modern, glassmorphic "popup" style selector positioned at the bottom-right.
+  - Supports **50+ Programming Languages** with intelligent auto-detection.
+  - Features a built-in search bar and smooth upward-opening animations.
+* **Fast Execution:** Optimized JavaScript execution logic (client-side) and high-speed server-side runners for Python, C++, and Java.
 
 ### 📝 Advance Document Editor
 * **Full-screen Workspace:** Beautiful edge-to-edge layout for distraction-free typing. 
@@ -33,9 +43,9 @@
 
 ### 🤖 AI & Collaboration Tools
 * **AI Code Assistant:** Built-in floating panel for AI assistance. Describe what you need, and let the AI generate, refactor, or explain the code in real-time.
-* **Live Chat & Commenting:** Discuss changes with your team directly via the attached Live Chat panel, or attach floating comments to specific sections of a document.
+* **Live Chat & Commenting:** Discuss changes with your team directly via the attached Live Chat panel, or attach floating comments and **Voice Comments** to specific sections.
+* **Sidebar Navigator:** Quickly switch between recent documents without leaving the editor.
 * **Version History:** Access previous document versions to track changes or revert to a stable state.
-* **Viewer Logs:** See who viewed or interacted with a document.
 
 ### ⚙️ Interactive Dashboard
 * **Document Management:** Create, delete, and rename documents seamlessly.
@@ -54,7 +64,7 @@
   * CodeMirror 6 (Code Mode)
   * Tiptap / ProseMirror (Document Mode)
 * **Collaboration Engine:** Yjs, y-websocket, y-prosemirror
-* **Styling:** Custom CSS system (no heavy external libraries like Tailwind)
+* **Styling:** Custom CSS system with **Glassmorphism** and backdrop-blur effects.
 * **Document Conversion:** Mammoth.js (Word), PDF.js (PDF viewing/parsing)
 
 ### Backend Structure (`/server`)
@@ -74,8 +84,8 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/NejamulHaque/collab-editor.git
-cd collab-editor
+git clone https://github.com/NejamulHaque/CollabSheets.git
+cd CollabSheets
 ```
 
 ### 2. Setup the Postgres Database
@@ -92,38 +102,10 @@ cd server
 # Install Dependencies
 npm install
 
-# Create environment configuration
-touch .env
+# Initialize the Database Schema:
+# Start your server: node server.js
+# Navigate to http://localhost:3000/setup-db to execute migrations.
 ```
-**Initialize the Database Schema:** Instead of running manual SQL, you can hit the database setup route:
-1. Start your server: `node server.js`
-2. Navigate to `http://localhost:3000/setup-db` in your browser. This will automatically execute the required setup migrations. 
-
-Add the following to your `server/.env` file:
-```env
-# Server
-PORT=3000
-
-# Database Access
-DB_USER=your_postgres_username
-DB_PASSWORD=your_postgres_password
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=collab_db
-
-# Security & AI
-JWT_SECRET=super_secret_jwt_key
-GEMINI_API_KEY=your_google_ai_key
-
-# Email Invitations (Nodemailer)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-SMTP_FROM=noreply@collabsheets.com
-```
-1. Start your server: `node server.js`
-2. Navigate to `http://localhost:3000/setup-db` in your browser. This will automatically execute the required setup migrations. 
 
 ### 4. Frontend Setup
 ```bash
@@ -131,42 +113,13 @@ SMTP_FROM=noreply@collabsheets.com
 cd ../client
 
 # Install Dependencies
-# (Note: Use legacy peer deps due to strict Tiptap core version requirements)
 npm install --legacy-peer-deps
 
-# Create environment configuration
-touch .env
-```
-Add the following to your `client/.env` file:
-```env
-# Point this to your backend Node.js server
-VITE_API_URL=http://localhost:3000
-
-# Optional websocket URL if different from API origin
-VITE_WS_URL=ws://localhost:3000
-```
-Run the frontend:
-```bash
+# Run the frontend:
 npm run dev
 ```
 
 ---
-
-## 🌐 Production Deployment
-
-If hosting on platforms like Render or Heroku:
-
-**Backend Setup:**
-1. Deploy the `/server` folder as a Node.js Web Service.
-2. Ensure you have provisioned a managed PostgreSQL database.
-3. Configure your Environment Variables inside the hosting dashboard (`DB_HOST`, `DB_PASSWORD`, `JWT_SECRET`, etc.).
-4. Run `node server.js` as your start command.
-5. In your custom domain settings, ensure CORS requests are allowed if you host your frontend on a separate domain.
-
-**Frontend Setup:**
-1. Deploy the `/client` folder as a static site or Node web app.
-2. Add your built backend URL to your deployment variables: `VITE_API_URL=https://your-backend-server.com`
-3. The Vite build process (`npm run build`) will inject your `VITE_API_URL` during compilation. Be sure that there are **no trailing slashes** at the end of the URL (e.g. use `https://xyz.com` instead of `https://xyz.com/`).
 
 ## 📄 License
 
