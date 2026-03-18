@@ -65,74 +65,88 @@ export default function Login() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--font)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--font)', overflow: 'hidden' }}>
       {/* Left panel */}
-      <div style={{ flex: 1, background: dark ? '#1e1b4b' : 'linear-gradient(135deg,#1e1b4b,#4338ca)', padding: 48, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src="/H&S.png" alt="Logo" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }} />
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>CollabSheets</span>
+      <div style={{ flex: 1, background: dark ? '#0a0e1a' : '#1e1b4b', padding: 48, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
+        {/* Animated Background Blob */}
+        <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '60%', height: '60%', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', filter: 'blur(60px)', animation: 'pulse 8s infinite alternate' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', left: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)', filter: 'blur(50px)', animation: 'pulse 12s infinite alternate-reverse' }} />
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="fade-in">
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(99,102,241,0.3)' }}>
+              <img src="/H&S.png" alt="Logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
+            </div>
+            <span style={{ color: '#fff', fontWeight: 800, fontSize: 20, letterSpacing: '-0.5px' }}>CollabSheets</span>
           </div>
           <button onClick={toggle} style={iconBtn}>{dark ? '☀️' : '🌙'}</button>
         </div>
 
-        <div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', marginBottom: 16 }}>Why engineers choose us</div>
-          <h1 style={{ fontSize: 44, fontWeight: 900, color: '#fff', lineHeight: 1.1, letterSpacing: '-1.5px', marginBottom: 20 }}>Code together.<br />Ship faster.</h1>
-          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: 40, maxWidth: 440 }}>
-            Real-time collaborative code editor powered by CRDTs. No merge conflicts. Works offline. Built for engineering teams.
+        <div className="stagger" style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: 800, letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: 20 }}>Elevate your collaboration</div>
+          <h1 style={{ fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1.05, letterSpacing: '-2px', marginBottom: 24 }}>Think together.<br /><span className="gradient-text" style={{ filter: 'brightness(1.5)' }}>Code as one.</span></h1>
+          <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, marginBottom: 44, maxWidth: 460 }}>
+            The next-generation collaborative editor for teams that demand sub-50ms sync latency and zero-conflict merging.
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
             {[
-              ['⚡', 'Sub-50ms sync latency via WebSockets'],
-              ['🔀', 'Conflict-free CRDT merging — no data loss'],
-              ['📡', 'Offline-first — works without internet'],
-              ['🔒', 'JWT auth + end-to-end room isolation'],
+              ['⚡', 'Ultra-low latency sync via WebSockets'],
+              ['🔀', 'Conflict-free CRDT architecture'],
+              ['📡', 'Local-first & offline persistence'],
+              ['🔒', 'Enterprise-grade isolation & JWT auth'],
             ].map(([icon, text], i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'rgba(255,255,255,0.85)', fontSize: 14 }}>
-                <span style={{ fontSize: 18, width: 24 }}>{icon}</span>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: 500 }}>
+                <span style={{ fontSize: 20, width: 28 }}>{icon}</span>
                 <span>{text}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {['R','A','S','M','K'].map((l,i) => (
-            <div key={i} style={{ width: 32, height: 32, borderRadius: '50%', background: ['#6366f1','#06b6d4','#10b981','#f59e0b','#ec4899'][i], display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 12, border: '2px solid rgba(255,255,255,0.2)', marginLeft: i ? -8 : 0 }}>{l}</div>
-          ))}
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginLeft: 6 }}>2,400+ developers collaborating</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative', zIndex: 1 }} className="fade-in">
+          <div style={{ display: 'flex' }}>
+            {['R','A','S','M','K'].map((l,i) => (
+              <div key={i} style={{ width: 34, height: 34, borderRadius: '50%', background: ['#6366f1','#06b6d4','#10b981','#f59e0b','#ec4899'][i], display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 12, border: '2px solid #1e1b4b', marginLeft: i ? -10 : 0, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}>{l}</div>
+            ))}
+          </div>
+          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginLeft: 8, fontWeight: 600 }}>Trusted by 2,400+ developers</span>
         </div>
       </div>
 
       {/* Right panel */}
-      <div style={{ width: 500, background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }}>
-        <div style={{ width: '100%', maxWidth: 380 }}>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)', marginBottom: 6, letterSpacing: '-0.5px' }}>Welcome back</h2>
-          <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: 28 }}>Sign in to your workspace</p>
+      <div style={{ width: 540, background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }} className="fade-in">
+        <div style={{ width: '100%', maxWidth: 380 }} className="stagger">
+          <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--text)', marginBottom: 8, letterSpacing: '-1px' }}>Welcome back</h2>
+          <p style={{ fontSize: 15, color: 'var(--text2)', marginBottom: 32, fontWeight: 500 }}>Enter your details to access your workspace</p>
 
-          {error && <div style={errorStyle}>{error}</div>}
+          {error && <div className="scale-in" style={errorStyle}>{error}</div>}
 
           <GoogleBtn onClick={handleGoogleSignIn} disabled={loading} />
 
-          <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '28px 0' }}>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }}></div>
-            <span style={{ padding: '0 12px', fontSize: 12, color: 'var(--text3)', fontWeight: 600 }}>OR CONTINUE WITH EMAIL</span>
+            <span style={{ padding: '0 16px', fontSize: 11, color: 'var(--text3)', fontWeight: 800, letterSpacing: '0.05em' }}>OR EMAIL</span>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }}></div>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <Field label="Email" type="email" placeholder="you@example.com" value={form.email} onChange={v => setForm({...form, email: v})} />
+          <form onSubmit={handleSubmit} className="stagger">
+            <Field label="Email Address" type="email" placeholder="you@company.com" value={form.email} onChange={v => setForm({...form, email: v})} />
             <Field label="Password" type="password" placeholder="••••••••" value={form.password} onChange={v => setForm({...form, password: v})} />
+            <div style={{ textAlign: 'right', marginBottom: 20 }}>
+              <a href="#" style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>Forgot password?</a>
+            </div>
             <Btn loading={loading} label="Sign in" loadingLabel="Signing in..." />
           </form>
 
-          <div style={{ textAlign: 'center', marginTop: 20, fontSize: 14, color: 'var(--text2)' }}>
-            No account?{' '}
-            <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>Create one free</Link>
+          <div style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--text2)', fontWeight: 500 }}>
+            Don't have an account?{' '}
+            <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 700, textDecoration: 'none' }}>Create one for free</Link>
           </div>
         </div>
       </div>
+      <style>{`
+        @keyframes pulse { from { opacity: 0.4; transform: scale(1); } to { opacity: 0.7; transform: scale(1.1); } }
+      `}</style>
     </div>
   )
 }

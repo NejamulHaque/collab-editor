@@ -20,14 +20,14 @@ router.get('/:docId', auth, async (req, res) => {
 
 // POST /comments/:docId — add a comment
 router.post('/:docId', auth, async (req, res) => {
-  const { content, line_number } = req.body
-  if (!content?.trim()) return res.status(400).json({ error: 'content required' })
+  const { content, line_number, audio_data } = req.body
+  if (!content?.trim() && !audio_data) return res.status(400).json({ error: 'content or audio required' })
   try {
     const result = await pool.query(
-      `INSERT INTO comments (doc_id, user_id, content, line_number)
-       VALUES ($1,$2,$3,$4)
+      `INSERT INTO comments (doc_id, user_id, content, line_number, audio_data)
+       VALUES ($1,$2,$3,$4,$5)
        RETURNING *`,
-      [req.params.docId, req.user.userId, content.trim(), line_number || null]
+      [req.params.docId, req.user.userId, content?.trim() || '', line_number || null, audio_data || null]
     )
     // Attach author name for immediate frontend use
     const row = result.rows[0]

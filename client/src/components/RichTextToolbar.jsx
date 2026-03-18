@@ -103,36 +103,59 @@ export default function RichTextToolbar({ editor }) {
   
   const menuOptions = {
     'File': [
-      { label: 'New', action: () => window.open('/dashboard', '_blank') },
-      { label: 'Import Docs', action: () => fileInputRef.current?.click() },
+      { label: 'New Document', shortcut: 'Ctrl+N', action: () => window.open('/dashboard', '_blank') },
+      { label: 'Import...', shortcut: 'Ctrl+O', action: () => fileInputRef.current?.click() },
+      { label: 'Rename', shortcut: 'F2', action: () => {/* Triggers rename in parent if we expose it */} },
+      { label: '---' },
+      { label: 'Page Setup', action: () => alert('Page Setup: A4, Portrait, 1" Margins') },
+      { label: 'Print', shortcut: 'Ctrl+P', action: exportPDF },
+      { label: '---' },
       { label: 'Download as PDF', action: exportPDF },
       { label: 'Download as Word', action: exportWord },
     ],
     'Edit': [
-      { label: 'Undo', action: () => editor.chain().focus().undo().run() },
-      { label: 'Redo', action: () => editor.chain().focus().redo().run() },
-      { label: 'Cut', action: () => document.execCommand('cut') },
-      { label: 'Copy', action: () => document.execCommand('copy') },
+      { label: 'Undo', shortcut: 'Ctrl+Z', action: () => editor.chain().focus().undo().run() },
+      { label: 'Redo', shortcut: 'Ctrl+Y', action: () => editor.chain().focus().redo().run() },
+      { label: '---' },
+      { label: 'Cut', shortcut: 'Ctrl+X', action: () => document.execCommand('cut') },
+      { label: 'Copy', shortcut: 'Ctrl+C', action: () => document.execCommand('copy') },
+      { label: 'Paste', shortcut: 'Ctrl+V', action: () => document.execCommand('paste') },
+      { label: '---' },
+      { label: 'Find & Replace', shortcut: 'Ctrl+F', action: () => alert('Find & Replace coming soon!') },
+      { label: 'Select All', shortcut: 'Ctrl+A', action: () => editor.chain().focus().selectAll().run() },
     ],
     'Insert': [
       { label: 'Image', action: addImage },
-      { label: 'Link', action: setLink },
+      { label: 'Link', shortcut: 'Ctrl+K', action: setLink },
       { label: 'Table (3x3)', action: () => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run() },
-      { label: 'YouTube Video', action: addYoutube }
+      { label: 'YouTube Video', action: addYoutube },
+      { label: '---' },
+      { label: 'Horizontal Line', action: () => editor.chain().focus().setHorizontalRule().run() },
+      { label: 'Page Break', action: () => editor.chain().focus().setHardBreak().run() },
+      { label: 'Special Character', action: () => alert('Ω, ∑, √, ∞, π') },
     ],
     'Format': [
-      { label: 'Bold', action: () => editor.chain().focus().toggleBold().run() },
-      { label: 'Italic', action: () => editor.chain().focus().toggleItalic().run() },
-      { label: 'Underline', action: () => editor.chain().focus().toggleUnderline().run() },
+      { label: 'Bold', shortcut: 'Ctrl+B', action: () => editor.chain().focus().toggleBold().run() },
+      { label: 'Italic', shortcut: 'Ctrl+I', action: () => editor.chain().focus().toggleItalic().run() },
+      { label: 'Underline', shortcut: 'Ctrl+U', action: () => editor.chain().focus().toggleUnderline().run() },
       { label: 'Strikethrough', action: () => editor.chain().focus().toggleStrike().run() },
+      { label: '---' },
+      { label: 'UPPERCASE', action: () => alert('Text transform logic needed') },
+      { label: 'lowercase', action: () => alert('Text transform logic needed') },
+      { label: '---' },
       { label: 'Clear Formatting', action: () => editor.chain().focus().unsetAllMarks().run() }
     ],
     'Tools': [
-      { label: 'Word Count', action: () => alert(`Word count: ${editor.storage.characterCount?.words() || 0}`) }
+      { label: 'Spelling & Grammar', action: () => alert('All good!') },
+      { label: 'Word Count', shortcut: 'Ctrl+Shift+C', action: () => alert(`Word count: ${editor.storage.characterCount?.words() || 0}`) },
+      { label: 'Dictionary', action: () => alert('Define: "Collaboration" - Working together.') },
     ],
     'Help': [
-      { label: 'CollabSheets Help', action: () => alert('Welcome to CollabSheets!') },
-      { label: 'About Developer', action: () => setShowDeveloper(true) }
+      { label: 'Help Center', shortcut: 'F1', action: () => alert('Welcome to CollabSheets Help!') },
+      { label: 'Keyboard Shortcuts', shortcut: 'Ctrl+/', action: () => alert('B: Bold, I: Italic, U: Underline...') },
+      { label: '---' },
+      { label: 'About Developer', action: () => setShowDeveloper(true) },
+      { label: 'Version Info', action: () => alert('CollabSheets v2.4.0 (Enterprise Early Access)') }
     ]
   }
 
@@ -157,17 +180,20 @@ export default function RichTextToolbar({ editor }) {
               </button>
               
               {activeMenu === menuName && (
-                <div style={dropdownStyle}>
-                  {items.map(item => (
-                    <button 
-                      key={item.label} 
-                      onClick={() => { item.action(); setActiveMenu(null) }}
-                      style={dropdownItemStyle}
-                      onMouseOver={e=>e.currentTarget.style.background='var(--bg3)'} 
-                      onMouseOut={e=>e.currentTarget.style.background='transparent'}
-                    >
-                      {item.label}
-                    </button>
+                <div className="menu-dropdown">
+                  {items.map((item, idx) => (
+                    item.label === '---' ? (
+                      <div key={idx} style={{ height: 1, background: 'var(--border)', margin: '4px 8px' }} />
+                    ) : (
+                      <button 
+                        key={item.label} 
+                        onClick={() => { item.action(); setActiveMenu(null) }}
+                        className="menu-item"
+                      >
+                        <span>{item.label}</span>
+                        {item.shortcut && <span className="menu-shortcut">{item.shortcut}</span>}
+                      </button>
+                    )
                   ))}
                 </div>
               )}

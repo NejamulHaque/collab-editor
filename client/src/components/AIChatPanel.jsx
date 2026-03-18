@@ -9,7 +9,7 @@ const SUGGESTIONS = [
   'Convert this to TypeScript',
 ]
 
-export default function AIChatPanel({ code, language, onClose }) {
+export default function AIChatPanel({ code, language, onClose, onApplyCode }) {
   const { messages, loading, sendMessage, clearChat } = useAI()
   const [input, setInput] = useState('')
   const bottomRef = useRef(null)
@@ -71,7 +71,7 @@ export default function AIChatPanel({ code, language, onClose }) {
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word',
             }}>
-              <MarkdownText text={msg.content} isAssistant={msg.role === 'assistant'} />
+              <MarkdownText text={msg.content} isAssistant={msg.role === 'assistant'} onApplyCode={onApplyCode} />
             </div>
           </div>
         ))}
@@ -112,7 +112,7 @@ export default function AIChatPanel({ code, language, onClose }) {
 }
 
 // Minimal markdown renderer — handles code blocks and bold
-function MarkdownText({ text, isAssistant }) {
+function MarkdownText({ text, isAssistant, onApplyCode }) {
   if (!isAssistant) return <span>{text}</span>
   const parts = text.split(/(```[\s\S]*?```)/g)
   return (
@@ -123,10 +123,26 @@ function MarkdownText({ text, isAssistant }) {
           const lang = lines[0].trim()
           const code = lines.slice(1).join('\n')
           return (
-            <pre key={i} style={{ background: 'var(--bg3)', borderRadius: 8, padding: '8px 10px', fontSize: 12, fontFamily: 'var(--font-mono)', overflowX: 'auto', margin: '6px 0', border: '1px solid var(--border)', color: 'var(--text)' }}>
-              {lang && <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4 }}>{lang}</div>}
-              {code}
-            </pre>
+            <div key={i} style={{ position: 'relative', margin: '10px 0' }}>
+              <pre style={{ background: 'var(--bg3)', borderRadius: 8, padding: '10px 12px', fontSize: 12, fontFamily: 'var(--font-mono)', overflowX: 'auto', border: '1px solid var(--border)', color: 'var(--text)', marginBottom: 0 }}>
+                {lang && <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 6, fontWeight: 700, textTransform: 'uppercase' }}>{lang}</div>}
+                {code}
+              </pre>
+              <button 
+                onClick={() => onApplyCode?.(code)} 
+                style={{ 
+                  position: 'absolute', top: 6, right: 6, 
+                  background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', 
+                  border: '1px solid rgba(99, 102, 241, 0.3)', borderRadius: 6, 
+                  padding: '4px 8px', fontSize: 10, fontWeight: 700, cursor: 'pointer',
+                  transition: 'all 0.2s', backdropFilter: 'blur(4px)'
+                }}
+                onMouseOver={e => { e.currentTarget.style.background = '#6366f1'; e.currentTarget.style.color = '#fff' }}
+                onMouseOut={e => { e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)'; e.currentTarget.style.color = '#6366f1' }}
+              >
+                Apply to Editor
+              </button>
+            </div>
           )
         }
         // Handle **bold**

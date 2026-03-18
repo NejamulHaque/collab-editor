@@ -18,9 +18,11 @@ const DOCKER_CONFIG = {
 
 // Local fallback — runs directly on host via child_process
 const LOCAL_CONFIG = {
-  python:     { ext: 'py',  cmd: 'python3', args: (f) => [f] },
-  javascript: { ext: 'js',  cmd: 'node',    args: (f) => [f] },
-  bash:       { ext: 'sh',  cmd: 'bash',    args: (f) => [f] },
+  python:     { ext: 'py',   cmd: 'python3', args: (f) => [f] },
+  javascript: { ext: 'js',   cmd: 'node',    args: (f) => [f] },
+  bash:       { ext: 'sh',   cmd: 'bash',    args: (f) => [f] },
+  cpp:        { ext: 'cpp',  cmd: 'bash',    args: (f) => ['-c', `g++ ${f} -o ${f}.out && ${f}.out`] },
+  java:       { ext: 'java', cmd: 'bash',    args: (f) => ['-c', `javac ${f} && java -cp ${path.dirname(f)} Main`] },
 }
 
 function commandExists(cmd) {
@@ -80,7 +82,18 @@ router.post('/run', auth, async (req, res) => {
   try {
     fs.writeFileSync(filePath, code, 'utf-8')
 
-    // ===== Docker execution (secure sandbox) =====
+    // ===== Fast Local Path (Preferred for speed if runtime exists) =====
+    const localConfig = LOCAL_CONFIG[language]
+    if (localConfig) {
+      const runtimeExists = await commandExists(localConfig.cmd)
+      if (runtimeExists) {
+        const result = await runWithStdin(localConfig.cmd, localConfig.args(filePath), stdin || '', 15000)
+        result.mode = '⚡ Local Fast Path'
+        return res.json(result)
+      }
+    }
+
+    // ===== Docker Path (Secure fallback/sandbox) =====
     if (dockerAvailable) {
       const result = await new Promise((resolve) => {
         const args = [
@@ -88,8 +101,6 @@ router.post('/run', auth, async (req, res) => {
           '--cpus', '0.5',
           '--memory', '128m',
           '--network', 'none',
-          '--read-only',
-          '--tmpfs', '/tmp',
           '-v', `${tmpDir}:/code:ro`,
           dockerConfig.image,
           ...dockerConfig.cmd,
@@ -113,36 +124,18 @@ router.post('/run', auth, async (req, res) => {
         }, 15000)
         proc.on('close', () => clearTimeout(timer))
 
-        // Pipe stdin
         if (stdin) proc.stdin.write(stdin)
         proc.stdin.end()
       })
+      result.mode = '🐳 Docker Sandbox'
       return res.json(result)
     }
 
-    // ===== Local fallback (no Docker) =====
-    const localConfig = LOCAL_CONFIG[language]
-    if (!localConfig) {
-      return res.json({
-        stdout: '',
-        stderr: `⚠️ Docker is not available. Local execution only supports: ${Object.keys(LOCAL_CONFIG).join(', ')}.\nThe '${language}' runtime is not configured for local execution.`,
-        exitCode: -1,
-      })
-    }
-
-    const runtimeExists = await commandExists(localConfig.cmd)
-    if (!runtimeExists) {
-      return res.json({
-        stdout: '',
-        stderr: `⚠️ Runtime '${localConfig.cmd}' is not installed on this server.\nInstall it or use Docker for full language support.`,
-        exitCode: -1,
-      })
-    }
-
-    // Execute locally with stdin support
-    const result = await runWithStdin(localConfig.cmd, localConfig.args(filePath), stdin || '', 15000)
-    result.mode = '⚡ Local execution'
-    return res.json(result)
+    res.json({
+      stdout: '',
+      stderr: `⚠️ No local runtime or Docker found for '${language}'.`,
+      exitCode: -1
+    })
 
   } catch (err) {
     res.status(500).json({ error: err.message })

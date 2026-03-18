@@ -19,7 +19,7 @@ const LANG_ICONS = {
   plaintext:  '📃',
 }
 
-export default function LanguageSelector({ currentLang, detectedLang, onSelect }) {
+export default function LanguageSelector({ currentLang, detectedLang, onSelect, upward = false }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const ref = useRef()
@@ -42,33 +42,52 @@ export default function LanguageSelector({ currentLang, detectedLang, onSelect }
         onClick={() => setOpen(o => !o)}
         style={{
           display: 'flex', alignItems: 'center', gap: 6,
-          padding: '5px 10px',
-          background: open ? 'var(--accent-light)' : 'var(--bg2)',
-          border: '1px solid var(--border)',
-          borderRadius: 8, cursor: 'pointer',
-          fontSize: 13, fontWeight: 600,
+          padding: '6px 14px',
+          background: open ? 'var(--accent-light)' : 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid ' + (open ? 'var(--accent)' : 'var(--border)'),
+          borderRadius: 20, cursor: 'pointer',
+          fontSize: 12, fontWeight: 700,
           color: 'var(--text)',
-          transition: 'all .15s',
-          minWidth: 140,
+          transition: 'all .25s cubic-bezier(0.4, 0, 0.2, 1)',
+          minWidth: 120,
+          maxWidth: 180,
+          boxShadow: open ? '0 0 20px var(--accent-light)' : 'var(--shadow-sm)'
         }}
         title="Select language"
       >
         <span style={{ fontSize: 15 }}>{LANG_ICONS[displayLang.id] || '📄'}</span>
-        <span style={{ flex: 1, textAlign: 'left' }}>{displayLang.label}</span>
-        {currentLang === 'auto' && detectedLang && detectedLang !== 'auto' && (
-          <span style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 400 }}>
-            ({LANGUAGES.find(l => l.id === detectedLang)?.label || detectedLang})
-          </span>
-        )}
+        <span style={{ 
+          flex: 1, 
+          textAlign: 'left',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }}>
+          {displayLang.label}
+          {currentLang === 'auto' && detectedLang && detectedLang !== 'auto' && (
+            <span style={{ fontSize: 10, color: 'var(--text3)', fontWeight: 400, marginLeft: 4 }}>
+              ({LANGUAGES.find(l => l.id === detectedLang)?.label || detectedLang})
+            </span>
+          )}
+        </span>
         <span style={{ color: 'var(--text3)', fontSize: 10 }}>▾</span>
       </button>
 
       {open && (
         <div style={{
-          position: 'absolute', top: 38, left: 0,
-          background: 'var(--bg)', border: '1px solid var(--border)',
-          borderRadius: 12, boxShadow: 'var(--shadow-lg)',
-          zIndex: 200, width: 220, overflow: 'hidden',
+          position: 'absolute', 
+          [upward ? 'bottom' : 'top']: upward ? 48 : 38, 
+          right: 0,
+          background: 'var(--bg)', 
+          backdropFilter: 'blur(20px)',
+          border: '1px solid var(--border)',
+          borderRadius: 16, 
+          boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+          zIndex: 200, 
+          width: 240, 
+          overflow: 'hidden',
+          animation: upward ? 'slideUpFade 0.2s ease-out' : 'none'
         }}>
           <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--border)' }}>
             <input

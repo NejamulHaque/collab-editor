@@ -13,6 +13,40 @@ export function useCodeRunner() {
     setError(null)
     setOutput(null)
 
+    // Optimization: Run JavaScript client-side for instant results
+    if (language === 'javascript') {
+      try {
+        const logs = []
+        const originalLog = console.log
+        const originalError = console.error
+        
+        console.log = (...args) => logs.push(args.map(a => String(a)).join(' '))
+        console.error = (...args) => logs.push('ERROR: ' + args.map(a => String(a)).join(' '))
+
+        const startTime = performance.now()
+        // eslint-disable-next-line no-eval
+        eval(code)
+        const endTime = performance.now()
+
+        console.log = originalLog
+        console.error = originalError
+
+        setOutput({ 
+          stdout: logs.join('\n'), 
+          stderr: '', 
+          exitCode: 0, 
+          mode: '⚡ Instant JS (Client)',
+          duration: (endTime - startTime).toFixed(1) + 'ms'
+        })
+        setRunning(false)
+        return
+      } catch (err) {
+        setOutput({ stdout: '', stderr: err.message, exitCode: 1, mode: '⚡ Instant JS (Client)' })
+        setRunning(false)
+        return
+      }
+    }
+
     try {
       const token = localStorage.getItem('token')
       const res = await fetch(`${API}/execute/run`, {

@@ -81,9 +81,17 @@ export function useCollabEditor(containerRef, docId, user, editable = true) {
   const [content, setContent] = useState('')
   const [detectedLang, setDetectedLang] = useState('auto')
   const [manualLang, setManualLang] = useState(null)
+  const [lineWrapping, setLineWrapping] = useState(false)
+  const [theme, setTheme] = useState('dark')
+  const [fontSize, setFontSize] = useState(14)
+  
   const viewRef = useRef(null)
   const langCompartment = useRef(new Compartment())
   const editableCompartment = useRef(new Compartment())
+  const themeCompartment = useRef(new Compartment())
+  const wrapCompartment = useRef(new Compartment())
+  const settingsCompartment = useRef(new Compartment())
+  
   const cleanupRef = useRef(null)
   const providerRef = useRef(null)
   const ydocRef = useRef(null)
@@ -95,6 +103,40 @@ export function useCollabEditor(containerRef, docId, user, editable = true) {
     if (viewRef.current) {
       viewRef.current.dispatch({
         effects: langCompartment.current.reconfigure(langDef.lang())
+      })
+    }
+  }, [])
+
+  // Dynamic configuration toggles
+  const toggleWrapping = useCallback(() => {
+    setLineWrapping(prev => {
+      const next = !prev
+      if (viewRef.current) {
+        viewRef.current.dispatch({
+          effects: wrapCompartment.current.reconfigure(next ? EditorView.lineWrapping : [])
+        })
+      }
+      return next
+    })
+  }, [])
+
+  const changeTheme = useCallback((newTheme) => {
+    setTheme(newTheme)
+    if (viewRef.current) {
+      viewRef.current.dispatch({
+        effects: themeCompartment.current.reconfigure(newTheme === 'dark' ? oneDark : [])
+      })
+    }
+  }, [])
+
+  const changeFontSize = useCallback((size) => {
+    setFontSize(size)
+    if (viewRef.current) {
+      viewRef.current.dispatch({
+        effects: settingsCompartment.current.reconfigure(EditorView.theme({
+          "&": { fontSize: `${size}px` },
+          ".cm-scroller": { fontFamily: 'var(--font-mono, monospace)' }
+        }))
       })
     }
   }, [])
@@ -144,9 +186,14 @@ export function useCollabEditor(containerRef, docId, user, editable = true) {
           basicSetup,
           editableCompartment.current.of(EditorView.editable.of(editable)),
           langCompartment.current.of(javascript({ jsx: true })),
+          themeCompartment.current.of(isDark ? oneDark : []),
+          wrapCompartment.current.of(lineWrapping ? EditorView.lineWrapping : []),
+          settingsCompartment.current.of(EditorView.theme({
+            "&": { fontSize: `${fontSize}px` },
+            ".cm-scroller": { fontFamily: 'var(--font-mono, monospace)' }
+          })),
           keymap.of(yUndoManagerKeymap),
           yCollab(ytext, provider.awareness, { undoManager }),
-          ...(isDark ? [oneDark] : []),
           EditorView.updateListener.of(update => {
             if (update.docChanged) {
               const text = update.state.doc.toString()
@@ -200,6 +247,13 @@ export function useCollabEditor(containerRef, docId, user, editable = true) {
     content,
     detectedLang: manualLang || detectedLang,
     setLanguage,
+    lineWrapping,
+    toggleWrapping,
+    theme,
+    changeTheme,
+    fontSize,
+    changeFontSize,
+    viewRef,
     providerRef,
     ydocRef,
   }

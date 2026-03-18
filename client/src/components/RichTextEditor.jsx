@@ -65,6 +65,12 @@ export default function RichTextEditor({ ydocRef, providerRef, user, editable = 
     // Let Yjs handle initial content
   })
 
+  // Expose editor instance for AI "Apply" functionality
+  useEffect(() => {
+    if (editor) window.tiptap = editor
+    return () => { window.tiptap = null }
+  }, [editor])
+
   // Sync editability if it changes dynamically after mount
   useEffect(() => {
     if (editor && editor.isEditable !== editable) {

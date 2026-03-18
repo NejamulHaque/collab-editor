@@ -69,76 +69,104 @@ export default function Register() {
   const pwLabel = ['','Weak','Good','Strong'][pwStrength]
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--font)' }}>
-      <div style={{ flex: 1, background: dark ? '#064e3b' : 'linear-gradient(135deg,#064e3b,#047857)', padding: 48, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <img src="/H&S.png" alt="Logo" style={{ width: 40, height: 40, borderRadius: 10, objectFit: 'cover' }} />
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>CollabSheets</span>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--font)', overflow: 'hidden' }}>
+      {/* Left panel */}
+      <div style={{ flex: 1, background: dark ? '#0a0e1a' : '#064e3b', padding: 48, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
+        {/* Animated Background Blob */}
+        <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '60%', height: '60%', background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)', filter: 'blur(60px)', animation: 'pulse 8s infinite alternate' }} />
+        <div style={{ position: 'absolute', bottom: '-10%', left: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%)', filter: 'blur(50px)', animation: 'pulse 12s infinite alternate-reverse' }} />
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }} className="fade-in">
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg,#10b981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }}>
+              <img src="/H&S.png" alt="Logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
+            </div>
+            <span style={{ color: '#fff', fontWeight: 800, fontSize: 20, letterSpacing: '-0.5px' }}>CollabSheets</span>
           </div>
           <button onClick={toggle} style={iconBtn}>{dark ? '☀️' : '🌙'}</button>
         </div>
-        <div>
-          <h1 style={{ fontSize: 44, fontWeight: 900, color: '#fff', lineHeight: 1.1, letterSpacing: '-1.5px', marginBottom: 20 }}>Start building<br />together today.</h1>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7, marginBottom: 40 }}>Free forever. No credit card. Invite your whole team.</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {['Create account in 30 seconds', 'Create your first document', 'Share link and start collaborating'].map((s, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{i+1}</div>
-                <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.85)' }}>{s}</span>
+
+        <div className="stagger" style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: 800, letterSpacing: '.15em', textTransform: 'uppercase', marginBottom: 20 }}>Empower your team</div>
+          <h1 style={{ fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1.05, letterSpacing: '-2px', marginBottom: 24 }}>Build together.<br /><span className="gradient-text" style={{ background: 'linear-gradient(135deg, #10b981, #34d399, #6ee7b7)', filter: 'brightness(1.2)' }}>Free forever.</span></h1>
+          <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, marginBottom: 44, maxWidth: 460 }}>
+            Join a thriving community of engineers building the future together in real-time. No credit card, no setup, just code.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {[
+              ['🚀', 'Get started in under 30 seconds'],
+              ['📁', 'Unlimited documents & collaborators'],
+              ['🔗', 'Instant sharing via secure links'],
+              ['🛠️', 'Professional-grade developer tools'],
+            ].map(([icon, text], i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, color: 'rgba(255,255,255,0.8)', fontSize: 15, fontWeight: 500 }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{icon}</div>
+                <span>{text}</span>
               </div>
             ))}
           </div>
         </div>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>
-          Already have an account?{' '}
-          <Link to="/" style={{ color: '#6ee7b7', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
+
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', position: 'relative', zIndex: 1 }} className="fade-in">
+          Already using CollabSheets?{' '}
+          <Link to="/" style={{ color: '#6ee7b7', fontWeight: 700, textDecoration: 'none' }}>Sign in here</Link>
         </p>
       </div>
 
-      <div style={{ width: 500, background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }}>
-        <div style={{ width: '100%', maxWidth: 380 }}>
-          <h2 style={{ fontSize: 28, fontWeight: 800, color: 'var(--text)', marginBottom: 6, letterSpacing: '-0.5px' }}>Create account</h2>
-          <p style={{ fontSize: 14, color: 'var(--text2)', marginBottom: 28 }}>Join thousands of teams already collaborating</p>
+      {/* Right panel */}
+      <div style={{ width: 540, background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 48 }} className="fade-in">
+        <div style={{ width: '100%', maxWidth: 380 }} className="stagger">
+          <h2 style={{ fontSize: 32, fontWeight: 900, color: 'var(--text)', marginBottom: 8, letterSpacing: '-1px' }}>Create account</h2>
+          <p style={{ fontSize: 15, color: 'var(--text2)', marginBottom: 32, fontWeight: 500 }}>Join thousands of teams collaborating today.</p>
 
-          {error && <div style={errorStyle}>{error}</div>}
+          {error && <div className="scale-in" style={errorStyle}>{error}</div>}
 
           <GoogleBtn onClick={handleGoogleSignIn} disabled={loading} />
 
-          <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '28px 0' }}>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }}></div>
-            <span style={{ padding: '0 12px', fontSize: 12, color: 'var(--text3)', fontWeight: 600 }}>OR CONTINUE WITH EMAIL</span>
+            <span style={{ padding: '0 16px', fontSize: 11, color: 'var(--text3)', fontWeight: 800, letterSpacing: '0.05em' }}>OR REGISTER WITH EMAIL</span>
             <div style={{ flex: 1, height: 1, background: 'var(--border)' }}></div>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <Field label="Full name" type="text" placeholder="Najamul Haque" value={form.name} onChange={v => setForm({...form, name: v})} />
-            <Field label="Email address" type="email" placeholder="you@example.com" value={form.email} onChange={v => setForm({...form, email: v})} />
+          <form onSubmit={handleSubmit} className="stagger">
+            <Field label="Full Name" type="text" placeholder="John Doe" value={form.name} onChange={v => setForm({...form, name: v})} />
+            <Field label="Email Address" type="email" placeholder="you@company.com" value={form.email} onChange={v => setForm({...form, email: v})} />
+            
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 6 }}>Password</label>
               <input
-                type="password" placeholder="Min. 6 characters" value={form.password}
+                type="password" placeholder="••••••••" value={form.password}
                 onChange={e => setForm({...form, password: e.target.value})} required
-                style={{ display: 'block', width: '100%', padding: '11px 14px', borderRadius: 'var(--radius)', border: '1.5px solid var(--border)', fontSize: 14, outline: 'none', background: 'var(--bg)', color: 'var(--text)' }}
+                style={{ display: 'block', width: '100%', padding: '11px 14px', borderRadius: 'var(--radius)', border: '1.5px solid var(--border)', fontSize: 14, outline: 'none', background: 'var(--bg)', color: 'var(--text)', transition: 'border .15s' }}
                 onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                 onBlur={e => e.target.style.borderColor = 'var(--border)'}
               />
               {form.password.length > 0 && (
-                <div style={{ marginTop: 8 }}>
-                  <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-                    {[1,2,3].map(i => <div key={i} style={{ flex:1, height:3, borderRadius:2, background: i<=pwStrength ? pwColor : 'var(--border)', transition:'background .3s' }}/>)}
+                <div style={{ marginTop: 10 }} className="scale-in">
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+                    {[1,2,3].map(i => <div key={i} style={{ flex:1, height:4, borderRadius:2, background: i<=pwStrength ? pwColor : 'var(--border)', transition:'background .3s', boxShadow: i<=pwStrength ? `0 0 10px ${pwColor}40` : 'none' }}/>)}
                   </div>
-                  <span style={{ fontSize: 11, color: pwColor, fontWeight: 700 }}>{pwLabel} password</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 11, color: pwColor, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{pwLabel} Strength</span>
+                    <span style={{ fontSize: 11, color: 'var(--text3)' }}>{form.password.length}/6 min</span>
+                  </div>
                 </div>
               )}
             </div>
-            <button type="submit" disabled={loading} style={{ display:'block', width:'100%', padding:'12px', background: loading ? 'var(--text3)' : 'linear-gradient(135deg,#059669,#047857)', color:'#fff', border:'none', borderRadius:'var(--radius)', fontSize:15, fontWeight:700, cursor: loading ? 'not-allowed':'pointer', marginTop:8 }}>
+
+            <button type="submit" disabled={loading} style={{ display:'block', width:'100%', padding:'12px', background: loading ? 'var(--text3)' : 'linear-gradient(135deg,#10b981,#059669)', color:'#fff', border:'none', borderRadius:'var(--radius)', fontSize:15, fontWeight:800, cursor: loading ? 'not-allowed':'pointer', marginTop:12, transition: 'all .2s' }} className="btn-glow">
               {loading ? 'Creating account...' : 'Create free account'}
             </button>
           </form>
-          <p style={{ fontSize: 12, color: 'var(--text3)', textAlign: 'center', marginTop: 16 }}>By registering you agree to our Terms of Service.</p>
+          <p style={{ fontSize: 12, color: 'var(--text3)', textAlign: 'center', marginTop: 24, lineHeight: 1.5 }}>
+            By registering, you agree to our <a href="#" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>Terms of Service</a> and <a href="#" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>Privacy Policy</a>.
+          </p>
         </div>
       </div>
+      <style>{`
+        @keyframes pulse { from { opacity: 0.4; transform: scale(1); } to { opacity: 0.7; transform: scale(1.1); } }
+      `}</style>
     </div>
   )
 }
