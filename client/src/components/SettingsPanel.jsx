@@ -19,7 +19,7 @@ export default function SettingsPanel({ fontSize, setFontSize, theme, toggleThem
         <h3 style={{ fontSize: 12, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12 }}>Appearance</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: 'var(--bg2)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-            <span style={{ fontSize: 14, color: 'var(--text2)' }}>Theme</span>
+            <span style={{ fontSize: 14, color: 'var(--text2)' }}>Application Theme</span>
             <button 
               onClick={toggleTheme}
               style={{ 

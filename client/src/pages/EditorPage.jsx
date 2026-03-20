@@ -326,7 +326,7 @@ export default function EditorPage() {
       case PANELS.VIEWERS:  return <ViewerLog docId={docId} onClose={() => setRightPanel(null)} />
       case PANELS.SKETCH:   return <SketchPanel ydocRef={ydocRef} onClose={() => setRightPanel(null)} />
       case PANELS.PREVIEW:  return <WebPreviewPanel code={content} language={selectedLang === 'auto' ? detectedLang : selectedLang} onClose={() => setRightPanel(null)} />
-      case PANELS.SETTINGS: return <SettingsPanel fontSize={fontSize} setFontSize={changeFontSize} theme={editorTheme} toggleTheme={() => changeTheme(editorTheme === 'dark' ? 'light' : 'dark')} onClose={() => setRightPanel(null)} />
+      case PANELS.SETTINGS: return <SettingsPanel fontSize={fontSize} setFontSize={changeFontSize} theme={theme} toggleTheme={toggle} onClose={() => setRightPanel(null)} />
       case PANELS.DEBUGGER: return <CodeDebuggerPanel code={content} language={lang} onClose={() => setRightPanel(null)} onApplyFix={(fixedCode) => {
         if (window.tiptap) {
           window.tiptap.commands.setContent(fixedCode);

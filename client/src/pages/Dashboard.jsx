@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { Toaster, toast } from 'react-hot-toast'
+import SettingsPanel from '../components/SettingsPanel'
+import "./Dashboard.css";
 
 const COLORS = ['#6366f1','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6']
 const docColor = id => { if(!id) return COLORS[0]; const n = id.charCodeAt(0)+id.charCodeAt(id.length-1); return COLORS[n%COLORS.length] }
@@ -26,7 +28,8 @@ export default function Dashboard() {
   const [profileOpen, setProfileOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
   const [starred, setStarred] = useState(() => JSON.parse(localStorage.getItem('starred') || '[]'))
-  const [sidebarTab, setSidebarTab] = useState('all') // 'all' | 'starred' | 'shared'
+  const [sidebarTab, setSidebarTab] = useState('all') // 'all' | 'starred' | 'analytics' | 'settings'
+  const [globalFontSize, setGlobalFontSize] = useState(() => parseInt(localStorage.getItem('globalFontSize') || '14'))
   const navigate = useNavigate()
   const { theme, toggle } = useTheme()
   const token = localStorage.getItem('token')
@@ -147,6 +150,7 @@ export default function Dashboard() {
             { id: 'all', icon: '📄', label: 'All Documents', count: docs.length },
             { id: 'starred', icon: '⭐', label: 'Starred', count: starred.length },
             { id: 'analytics', icon: '📊', label: 'Analytics' },
+            { id: 'settings', icon: '⚙️', label: 'Settings' },
           ].map(tab => (
             <div key={tab.id} onClick={() => setSidebarTab(tab.id)} style={{
               padding: '10px 12px', borderRadius: 8, fontWeight: 600, fontSize: 14,
@@ -196,7 +200,7 @@ export default function Dashboard() {
         <div style={{ marginBottom: 28 }} className="fade-in">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <h1 style={{ fontSize: 28, fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.7px' }}>
-              {sidebarTab === 'analytics' ? '📊 Analytics' : (sidebarTab === 'starred' ? '⭐ Starred' : 'My Documents')}
+              {sidebarTab === 'analytics' ? '📊 Analytics' : (sidebarTab === 'starred' ? '⭐ Starred' : (sidebarTab === 'settings' ? '⚙️ Settings' : 'My Documents'))}
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div className="badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
@@ -206,11 +210,21 @@ export default function Dashboard() {
           </div>
           <p style={{ fontSize: 14, color: 'var(--text3)' }}>
             {sidebarTab === 'analytics' ? 'Project insights and productivity metrics' : 
-             (sidebarTab === 'starred' ? `${starred.length} starred document${starred.length !== 1 ? 's' : ''}` : 'Create, manage, and collaborate on your documents')}
+             (sidebarTab === 'starred' ? `${starred.length} starred document${starred.length !== 1 ? 's' : ''}` : (sidebarTab === 'settings' ? 'Customize your editor experience' : 'Create, manage, and collaborate on your documents'))}
           </p>
         </div>
 
-        {sidebarTab === 'analytics' ? (
+        {sidebarTab === 'settings' ? (
+          <div className="fade-in" style={{ maxWidth: 600 }}>
+            <SettingsPanel 
+              fontSize={globalFontSize} 
+              setFontSize={(s) => { setGlobalFontSize(s); localStorage.setItem('globalFontSize', s) }} 
+              theme={theme} 
+              toggleTheme={toggle} 
+              onClose={() => setSidebarTab('all')} 
+            />
+          </div>
+        ) : sidebarTab === 'analytics' ? (
           <div className="fade-in">
              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginBottom: 30 }}>
                 <div style={analyticsCard}>
